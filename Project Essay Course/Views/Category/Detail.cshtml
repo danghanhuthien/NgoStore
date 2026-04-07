@@ -1,0 +1,204 @@
+@model Project_Essay_Course.Models.Category
+@{
+    ViewData["Title"] = "Chi Tiết: " + Model.Name;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+
+@section Styles {
+<style>
+.cat-detail-page { max-width: 1000px; margin: 3rem auto; padding: 0 2rem; }
+.form-breadcrumb { display:flex; align-items:center; gap:.6rem; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:#999; margin-bottom:2.5rem; }
+.form-breadcrumb a { color:#999; text-decoration:none; transition:color .2s; }
+.form-breadcrumb a:hover { color:var(--black); }
+.form-breadcrumb svg { width:12px; height:12px; stroke-width:2; }
+
+.detail-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem; flex-wrap:wrap; gap:1rem; }
+.detail-title  { font-family:var(--serif); font-size:clamp(1.6rem,3vw,2.4rem); font-weight:300; }
+.detail-title em { font-style:italic; }
+.detail-actions { display:flex; gap:.7rem; }
+.btn-sm { display:inline-flex; align-items:center; gap:.4rem; padding:.65rem 1.3rem; border:1px solid var(--light-gray); background:none; font-family:var(--sans); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--charcoal); text-decoration:none; cursor:pointer; transition:all .2s; }
+.btn-sm:hover { border-color:var(--black); color:var(--black); }
+.btn-sm svg { width:13px; height:13px; stroke-width:2; }
+.btn-sm-primary { background:var(--black); color:var(--white); border-color:var(--black); }
+.btn-sm-primary:hover { background:var(--charcoal); color:var(--white); }
+.btn-sm-danger { color:var(--danger); border-color:rgba(192,57,43,.3); }
+.btn-sm-danger:hover { background:var(--danger); color:var(--white); border-color:var(--danger); }
+
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem; }
+.detail-card { border:1px solid var(--light-gray); padding:1.8rem 2rem; }
+.detail-card-title { font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:1.4rem; padding-bottom:.8rem; border-bottom:1px solid var(--light-gray); }
+.info-row { display:flex; padding:.7rem 0; border-bottom:1px solid rgba(235,235,235,.6); }
+.info-row:last-child { border-bottom:none; }
+.info-label { font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:#bbb; width:120px; flex-shrink:0; padding-top:.1rem; }
+.info-value { font-size:.88rem; color:var(--black); flex:1; }
+.info-value.empty { color:#bbb; font-style:italic; }
+
+.status-badge { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .7rem; font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; }
+.status-badge::before { content:''; width:6px; height:6px; border-radius:50%; }
+.badge-active::before   { background:#16a34a; }
+.badge-active    { color:#15803d; background:#f0fdf4; border:1px solid #bbf7d0; }
+.badge-inactive::before { background:#bbb; }
+.badge-inactive  { color:#777; background:#f5f5f5; border:1px solid #e0e0e0; }
+
+/* Category image */
+.cat-img-large { width:120px; height:120px; object-fit:cover; border:1px solid var(--light-gray); }
+
+/* Sub-categories */
+.sub-list { display:flex; flex-direction:column; gap:.5rem; }
+.sub-item { display:flex; justify-content:space-between; align-items:center; padding:.7rem 1rem; background:var(--cream); font-size:.85rem; }
+.sub-item a { color:var(--black); text-decoration:none; font-family:var(--serif); font-size:.95rem; }
+.sub-item a:hover { color:var(--accent); }
+.sub-item-meta { font-size:.72rem; color:#999; }
+
+/* Products grid */
+.products-mini-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.8rem; }
+.product-mini-card { }
+.product-mini-img { aspect-ratio:3/4; object-fit:cover; width:100%; background:var(--cream); display:block; }
+.product-mini-img-placeholder { aspect-ratio:3/4; background:var(--cream); display:flex; align-items:center; justify-content:center; }
+.product-mini-img-placeholder svg { width:24px; height:24px; color:var(--stone); stroke-width:1; }
+.product-mini-name { font-family:var(--serif); font-size:.82rem; margin-top:.4rem; }
+.product-mini-name a { text-decoration:none; color:inherit; }
+.product-mini-name a:hover { color:var(--accent); }
+.product-mini-price { font-size:.75rem; color:#888; margin-top:.15rem; }
+
+.view-all-link { display:inline-flex; align-items:center; gap:.4rem; margin-top:1rem; font-size:.75rem; letter-spacing:.12em; text-transform:uppercase; color:var(--charcoal); text-decoration:none; border-bottom:1px solid var(--light-gray); transition:color .2s; }
+.view-all-link:hover { color:var(--black); border-color:var(--black); }
+
+@@media (max-width:768px) { .detail-grid { grid-template-columns:1fr; } .products-mini-grid { grid-template-columns:repeat(3,1fr); } }
+</style>
+}
+
+<div class="cat-detail-page">
+
+    <div class="form-breadcrumb">
+        <a asp-action="Index">Danh mục</a>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+        <span>@Model.Name</span>
+    </div>
+
+    <div class="detail-header">
+        <div>
+            <div style="font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:.4rem">Chi Tiết Danh Mục</div>
+            <h1 class="detail-title"><em>@Model.Name</em></h1>
+        </div>
+        <div class="detail-actions">
+            <a asp-action="Edit"   asp-route-id="@Model.CategoryId" class="btn-sm btn-sm-primary">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Chỉnh sửa
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.CategoryId" class="btn-sm btn-sm-danger">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                Xóa
+            </a>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-card">
+            <div class="detail-card-title">Thông Tin</div>
+            <div class="info-row"><div class="info-label">Tên</div><div class="info-value">@Model.Name</div></div>
+            <div class="info-row">
+                <div class="info-label">Slug</div>
+                <div class="info-value" style="font-family:monospace;font-size:.8rem;color:#888">/category/@Model.Slug</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Danh mục cha</div>
+                <div class="info-value">
+                    @if (Model.Parent != null) {
+                        <a asp-action="Detail" asp-route-id="@Model.Parent.CategoryId"
+                           style="color:var(--black);border-bottom:1px solid var(--light-gray);text-decoration:none">
+                            @Model.Parent.Name
+                        </a>
+                    } else {
+                        <span style="color:#bbb;font-style:italic">Danh mục gốc</span>
+                    }
+                </div>
+            </div>
+            <div class="info-row"><div class="info-label">Thứ tự</div><div class="info-value">@Model.DisplayOrder</div></div>
+            <div class="info-row">
+                <div class="info-label">Trạng thái</div>
+                <div class="info-value">
+                    @if (Model.IsActive) { <span class="status-badge badge-active">Kích hoạt</span> }
+                    else { <span class="status-badge badge-inactive">Đã ẩn</span> }
+                </div>
+            </div>
+            <div class="info-row"><div class="info-label">Sản phẩm</div><div class="info-value">@Model.Products.Count(p => p.IsActive) đang bán</div></div>
+            <div class="info-row"><div class="info-label">Danh mục con</div><div class="info-value">@Model.Children.Count</div></div>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-card-title">Ảnh Danh Mục</div>
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <img class="cat-img-large" src="@Model.ImagePath" alt="@Model.Name" />
+            }
+            else
+            {
+                <div style="width:120px;height:120px;background:var(--cream);display:flex;align-items:center;justify-content:center">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:36px;height:36px;color:var(--stone);stroke-width:1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                </div>
+                <div style="font-size:.78rem;color:#bbb;margin-top:.6rem;font-style:italic">Chưa có ảnh</div>
+            }
+        </div>
+    </div>
+
+    @if (Model.Children.Any())
+    {
+        <div class="detail-card" style="margin-bottom:1.5rem">
+            <div class="detail-card-title">Danh Mục Con (@Model.Children.Count)</div>
+            <div class="sub-list">
+                @foreach (var child in Model.Children)
+                {
+                    <div class="sub-item">
+                        <div>
+                            <a asp-action="Detail" asp-route-id="@child.CategoryId">@child.Name</a>
+                            <div class="sub-item-meta">/@child.Slug &nbsp;·&nbsp; @child.Products.Count(p => p.IsActive) sản phẩm</div>
+                        </div>
+                        @if (child.IsActive) { <span class="status-badge badge-active">Active</span> }
+                        else { <span class="status-badge badge-inactive">Ẩn</span> }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (Model.Products.Any())
+    {
+        <div class="detail-card">
+            <div class="detail-card-title">Sản Phẩm Trong Danh Mục (@Model.Products.Count(p => p.IsActive))</div>
+            <div class="products-mini-grid">
+                @foreach (var p in Model.Products.Where(p => p.IsActive).Take(8))
+                {
+                    <div class="product-mini-card">
+                        @{
+                            var mainImg = p.Images.FirstOrDefault(i => i.IsMain) ?? p.Images.FirstOrDefault();
+                        }
+                        @if (mainImg != null)
+                        {
+                            <img class="product-mini-img" src="@mainImg.ImagePath" alt="@p.Name" />
+                        }
+                        else
+                        {
+                            <div class="product-mini-img-placeholder">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                            </div>
+                        }
+                        <div class="product-mini-name">
+                            <a asp-controller="Product" asp-action="AdminDetail" asp-route-id="@p.ProductId">@p.Name</a>
+                        </div>
+                        <div class="product-mini-price">@p.DisplayPrice.ToString("N0")₫</div>
+                    </div>
+                }
+            </div>
+            @if (Model.Products.Count(p => p.IsActive) > 8)
+            {
+                <a asp-controller="Product" asp-action="Manage" asp-route-categoryId="@Model.CategoryId"
+                   class="view-all-link">
+                    Xem tất cả @Model.Products.Count(p => p.IsActive) sản phẩm →
+                </a>
+            }
+        </div>
+    }
+
+</div>

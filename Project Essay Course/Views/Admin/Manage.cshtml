@@ -1,0 +1,395 @@
+@model IEnumerable<Project_Essay_Course.Models.Product>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản Lý Sản Phẩm";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages  = ViewBag.TotalPages  ?? 1;
+    int totalItems  = ViewBag.TotalItems  ?? 0;
+}
+
+@section Styles {
+<style>
+.manage-page { max-width: 1300px; margin: 3rem auto; padding: 0 2rem; }
+
+.manage-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+}
+.manage-eyebrow { font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:.5rem; }
+.manage-title   { font-family:var(--serif); font-size:clamp(1.6rem,3vw,2.4rem); font-weight:300; }
+.manage-title em { font-style:italic; }
+
+.btn-create {
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.8rem 1.8rem; background:var(--black); color:var(--white);
+    border:1px solid var(--black); font-family:var(--sans);
+    font-size:.74rem; letter-spacing:.14em; text-transform:uppercase;
+    text-decoration:none; transition:background var(--transition), color var(--transition);
+}
+.btn-create:hover { background:var(--white); color:var(--black); }
+.btn-create svg { width:14px; height:14px; stroke-width:2; }
+
+/* ── Stats ── */
+.manage-stats {
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:1rem; margin-bottom:2rem;
+}
+.stat-card { border:1px solid var(--light-gray); padding:1.2rem 1.6rem; display:flex; align-items:center; gap:1rem; }
+.stat-icon { width:38px; height:38px; background:var(--cream); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.stat-icon svg { width:18px; height:18px; stroke-width:1.5; color:var(--charcoal); }
+.stat-num   { font-family:var(--serif); font-size:1.6rem; font-weight:600; line-height:1; }
+.stat-label { font-size:.65rem; letter-spacing:.12em; text-transform:uppercase; color:#999; margin-top:.15rem; }
+
+/* ── Filters ── */
+.manage-filters {
+    display:flex; gap:.8rem; margin-bottom:1rem; flex-wrap:wrap; align-items:flex-end;
+}
+.filter-group { display:flex; flex-direction:column; gap:.4rem; }
+.filter-label { font-size:.65rem; letter-spacing:.12em; text-transform:uppercase; color:#999; }
+.filter-input, .filter-select {
+    padding:.6rem .9rem; border:1px solid var(--light-gray);
+    background:var(--white); font-family:var(--sans); font-size:.84rem;
+    color:var(--black); outline:none;
+    transition:border-color var(--transition);
+}
+.filter-input:focus, .filter-select:focus { border-color:var(--black); }
+.filter-search-wrap { position:relative; }
+.filter-search-wrap svg { position:absolute; left:.8rem; top:50%; transform:translateY(-50%); width:15px; height:15px; stroke-width:1.6; color:#bbb; }
+.filter-search-wrap .filter-input { padding-left:2.4rem; min-width:280px; }
+
+.btn-filter {
+    padding:.6rem 1.4rem; border:1px solid var(--black); background:var(--black);
+    color:var(--white); font-family:var(--sans); font-size:.72rem;
+    letter-spacing:.12em; text-transform:uppercase; cursor:pointer;
+    transition:background var(--transition), color var(--transition);
+}
+.btn-filter:hover { background:var(--white); color:var(--black); }
+.btn-reset {
+    padding:.6rem 1rem; border:1px solid var(--light-gray); background:none;
+    font-family:var(--sans); font-size:.72rem; letter-spacing:.12em;
+    text-transform:uppercase; cursor:pointer; color:#999;
+    transition:all .2s; text-decoration:none; display:inline-flex; align-items:center;
+}
+.btn-reset:hover { border-color:var(--black); color:var(--black); }
+
+.result-count { font-size:.78rem; color:#999; margin-bottom:.8rem; }
+.result-count strong { color:var(--black); }
+
+/* ── Table ── */
+.manage-table-wrap { overflow-x:auto; }
+.manage-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+.manage-table thead th {
+    padding:.75rem 1rem; font-size:.65rem; letter-spacing:.16em;
+    text-transform:uppercase; color:#999; font-weight:400;
+    border-bottom:2px solid var(--light-gray); text-align:left; white-space:nowrap;
+}
+.manage-table tbody tr { border-bottom:1px solid rgba(235,235,235,.7); transition:background .15s; }
+.manage-table tbody tr:hover { background:var(--cream); }
+.manage-table tbody td { padding:.9rem 1rem; vertical-align:middle; }
+
+/* Product cell */
+.product-cell { display:flex; align-items:center; gap:.9rem; }
+.product-thumb {
+    width:52px; height:65px; object-fit:cover; flex-shrink:0;
+    background:var(--cream);
+}
+.product-thumb-placeholder {
+    width:52px; height:65px; flex-shrink:0; background:var(--cream);
+    display:flex; align-items:center; justify-content:center;
+}
+.product-thumb-placeholder svg { width:20px; height:20px; color:var(--stone); stroke-width:1; }
+.product-cell-name { font-family:var(--serif); font-size:.95rem; color:var(--black); margin-bottom:.2rem; }
+.product-cell-sku  { font-size:.72rem; color:#bbb; font-family:monospace; }
+
+/* Price */
+.price-col { white-space:nowrap; }
+.price-sale { color:var(--black); font-weight:500; }
+.price-base-line { font-size:.75rem; color:#bbb; text-decoration:line-through; }
+
+/* Status badges */
+.status-badge {
+    display:inline-flex; align-items:center; gap:.35rem;
+    padding:.25rem .7rem; font-size:.65rem; letter-spacing:.1em; text-transform:uppercase;
+}
+.status-badge::before { content:''; width:6px; height:6px; border-radius:50%; }
+.badge-active::before   { background:#16a34a; }
+.badge-active    { color:#15803d; background:#f0fdf4; border:1px solid #bbf7d0; }
+.badge-inactive::before { background:#bbb; }
+.badge-inactive  { color:#777; background:#f5f5f5; border:1px solid #e0e0e0; }
+
+/* Stock */
+.stock-ok  { color:#15803d; font-weight:500; }
+.stock-low { color:#f59e0b; font-weight:500; }
+.stock-out { color:var(--danger); font-weight:500; }
+
+/* Actions */
+.action-group { display:flex; gap:.4rem; }
+.action-btn {
+    padding:.4rem .85rem; border:1px solid var(--light-gray); background:none;
+    font-family:var(--sans); font-size:.68rem; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--charcoal); text-decoration:none;
+    transition:all .2s; white-space:nowrap;
+}
+.action-btn:hover { border-color:var(--black); color:var(--black); }
+.action-btn-danger { color:var(--danger); border-color:rgba(192,57,43,.3); }
+.action-btn-danger:hover { background:var(--danger); color:var(--white); border-color:var(--danger); }
+
+/* Toggle form inline */
+.toggle-form { display:inline; }
+.toggle-btn {
+    padding:.4rem .85rem; border:1px solid var(--light-gray); background:none;
+    font-family:var(--sans); font-size:.68rem; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--charcoal); cursor:pointer;
+    transition:all .2s;
+}
+.toggle-btn:hover { border-color:var(--black); color:var(--black); }
+
+/* Empty */
+.empty-state { text-align:center; padding:5rem 2rem; color:#bbb; }
+.empty-state svg { width:48px; height:48px; stroke-width:1; margin:0 auto 1rem; }
+
+/* Pagination */
+.pagination { display:flex; justify-content:center; gap:.4rem; margin-top:2rem; }
+.page-btn { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border:1px solid var(--light-gray); background:none; font-family:var(--sans); font-size:.8rem; color:var(--charcoal); text-decoration:none; transition:all .2s; }
+.page-btn:hover, .page-btn.active { background:var(--black); color:var(--white); border-color:var(--black); }
+.page-btn svg { width:14px; height:14px; stroke-width:2; }
+
+@@media (max-width:1024px) { .manage-stats { grid-template-columns:repeat(2,1fr); } }
+@@media (max-width:600px) { .manage-stats { grid-template-columns:1fr; } }
+</style>
+}
+
+<div class="manage-page">
+
+    <div class="manage-header">
+        <div>
+            <div class="manage-eyebrow">Quản Trị Viên</div>
+            <h1 class="manage-title">Quản Lý <em>Sản Phẩm</em></h1>
+        </div>
+        <a asp-action="Create" class="btn-create">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+            Thêm Sản Phẩm
+        </a>
+    </div>
+
+    <div class="manage-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                </svg>
+            </div>
+            <div>
+                <div class="stat-num">@totalItems</div>
+                <div class="stat-label">Tổng sản phẩm</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+            </div>
+            <div>
+                <div class="stat-num">@Model.Count(p => p.IsActive)</div>
+                <div class="stat-label">Đang bán</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <div>
+                <div class="stat-num">@Model.Count(p => p.IsFeatured)</div>
+                <div class="stat-label">Nổi bật</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <div>
+                <div class="stat-num">@Model.Count(p => p.TotalStock == 0)</div>
+                <div class="stat-label">Hết hàng</div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Manage" method="get" class="manage-filters">
+        <div class="filter-group">
+            <div class="filter-label">Tìm kiếm</div>
+            <div class="filter-search-wrap">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" name="search" class="filter-input"
+                       placeholder="Tên, SKU..." value="@ViewBag.Search" />
+            </div>
+        </div>
+        <div class="filter-group">
+            <div class="filter-label">Danh mục</div>
+            <select name="categoryId" class="filter-select">
+                <option value="">Tất cả</option>
+                @if (ViewBag.Categories is Microsoft.AspNetCore.Mvc.Rendering.SelectList catList)
+                {
+                    @foreach (var item in catList)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="filter-group">
+            <div class="filter-label">Trạng thái</div>
+            <select name="isActive" class="filter-select">
+                <option value="">Tất cả</option>
+                <option value="true"  selected="@(ViewBag.IsActive == true)">Đang bán</option>
+                <option value="false" selected="@(ViewBag.IsActive == false)">Đã ẩn</option>
+            </select>
+        </div>
+        <button type="submit" class="btn-filter">Lọc</button>
+        <a asp-action="Manage" class="btn-reset">Xóa lọc</a>
+    </form>
+
+    <div class="result-count">
+        Hiển thị <strong>@Model.Count()</strong> / @totalItems sản phẩm
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            </svg>
+            <p>Chưa có sản phẩm nào. <a asp-action="Create" style="color:var(--black);border-bottom:1px solid">Thêm ngay</a></p>
+        </div>
+    }
+    else
+    {
+        <div class="manage-table-wrap">
+            <table class="manage-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Giá</th>
+                        <th>Tồn kho</th>
+                        <th>Trạng thái</th>
+                        <th>Cập nhật</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    @if (p.MainImage != null)
+                                    {
+                                        <img class="product-thumb" src="@p.MainImage.ImagePath" alt="@p.Name" />
+                                    }
+                                    else
+                                    {
+                                        <div class="product-thumb-placeholder">
+                                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                                        </div>
+                                    }
+                                    <div>
+                                        <div class="product-cell-name">@p.Name</div>
+                                        <div class="product-cell-sku">@(p.SKU ?? $"ID:{p.ProductId}")</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@p.Category?.Name</td>
+                            <td class="price-col">
+                                @if (p.SalePrice.HasValue && p.SalePrice < p.BasePrice)
+                                {
+                                    <div class="price-sale">@p.SalePrice.Value.ToString("N0")₫</div>
+                                    <div class="price-base-line">@p.BasePrice.ToString("N0")₫</div>
+                                }
+                                else
+                                {
+                                    <div class="price-sale">@p.BasePrice.ToString("N0")₫</div>
+                                }
+                            </td>
+                            <td>
+                                @if (p.TotalStock > 10)
+                                {
+                                    <span class="stock-ok">@p.TotalStock</span>
+                                }
+                                else if (p.TotalStock > 0)
+                                {
+                                    <span class="stock-low">@p.TotalStock ⚠</span>
+                                }
+                                else
+                                {
+                                    <span class="stock-out">Hết hàng</span>
+                                }
+                            </td>
+                            <td>
+                                @if (p.IsActive)
+                                {
+                                    <span class="status-badge badge-active">Đang bán</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge badge-inactive">Đã ẩn</span>
+                                }
+                            </td>
+                            <td style="font-size:.78rem;color:#999;white-space:nowrap">
+                                @p.UpdatedAt.ToLocalTime().ToString("dd/MM/yyyy")
+                            </td>
+                            <td>
+                                <div class="action-group">
+                                    <a asp-action="AdminDetail" asp-route-id="@p.ProductId" class="action-btn">Xem</a>
+                                    <a asp-action="Edit"        asp-route-id="@p.ProductId" class="action-btn">Sửa</a>
+                                    <form asp-action="ToggleActive" asp-route-id="@p.ProductId"
+                                          method="post" class="toggle-form">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="toggle-btn">
+                                            @(p.IsActive ? "Ẩn" : "Hiện")
+                                        </button>
+                                    </form>
+                                    <a asp-action="Delete" asp-route-id="@p.ProductId" class="action-btn action-btn-danger">Xóa</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="pagination">
+                @if (currentPage > 1)
+                {
+                    <a class="page-btn" asp-action="Manage" asp-route-page="@(currentPage-1)"
+                       asp-route-search="@ViewBag.Search" asp-route-categoryId="@ViewBag.CategoryId">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M15 18l-6-6 6-6"/></svg>
+                    </a>
+                }
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <a class="page-btn @(i == currentPage ? "active" : "")"
+                       asp-action="Manage" asp-route-page="@i"
+                       asp-route-search="@ViewBag.Search" asp-route-categoryId="@ViewBag.CategoryId">@i</a>
+                }
+                @if (currentPage < totalPages)
+                {
+                    <a class="page-btn" asp-action="Manage" asp-route-page="@(currentPage+1)"
+                       asp-route-search="@ViewBag.Search" asp-route-categoryId="@ViewBag.CategoryId">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+                    </a>
+                }
+            </div>
+        }
+    }
+
+</div>

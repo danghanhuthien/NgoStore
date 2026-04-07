@@ -1,0 +1,386 @@
+@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản Lý Người Dùng";
+}
+
+@section Styles {
+<style>
+.admin-page {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+/* ── Header ── */
+.admin-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1.2rem;
+}
+.admin-eyebrow { font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; }
+.admin-title { font-family: var(--serif); font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 300; color: var(--black); }
+.admin-title em { font-style: italic; }
+
+/* ── Stats bar ── */
+.admin-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1rem; margin-bottom: 2rem;
+}
+.stat-card {
+    border: 1px solid var(--light-gray); padding: 1.4rem 1.8rem;
+    display: flex; align-items: center; gap: 1rem;
+}
+.stat-card-icon {
+    width: 42px; height: 42px; background: var(--cream);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.stat-card-icon svg { width: 20px; height: 20px; stroke-width: 1.5; color: var(--charcoal); }
+.stat-card-num { font-family: var(--serif); font-size: 1.8rem; font-weight: 600; line-height: 1; color: var(--black); }
+.stat-card-label { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: #999; margin-top: .2rem; }
+
+/* ── Toolbar ── */
+.admin-toolbar {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.2rem; flex-wrap: wrap;
+}
+.search-box {
+    position: relative; flex: 1; min-width: 240px;
+}
+.search-box svg {
+    position: absolute; left: .9rem; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; stroke-width: 1.6; color: #bbb;
+}
+.search-box input {
+    width: 100%; padding: .7rem 1rem .7rem 2.5rem;
+    border: 1px solid var(--light-gray); background: var(--white);
+    font-family: var(--sans); font-size: .85rem; outline: none;
+    transition: border-color var(--transition);
+}
+.search-box input:focus { border-color: var(--black); }
+
+.toolbar-right { display: flex; gap: .7rem; }
+.btn-sm {
+    padding: .6rem 1.2rem;
+    border: 1px solid var(--light-gray); background: none;
+    font-family: var(--sans); font-size: .72rem;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--charcoal); cursor: pointer;
+    transition: all .2s; white-space: nowrap;
+    text-decoration: none; display: inline-flex; align-items: center; gap: .4rem;
+}
+.btn-sm:hover { border-color: var(--black); color: var(--black); }
+.btn-sm-primary { background: var(--black); color: var(--white); border-color: var(--black); }
+.btn-sm-primary:hover { background: var(--charcoal); color: var(--white); border-color: var(--charcoal); }
+.btn-sm svg { width: 13px; height: 13px; stroke-width: 2; }
+
+/* ── Table ── */
+.admin-table-wrap { overflow-x: auto; }
+.admin-table {
+    width: 100%; border-collapse: collapse;
+    font-size: .84rem;
+}
+.admin-table thead th {
+    padding: .75rem 1rem;
+    font-size: .65rem; letter-spacing: .16em; text-transform: uppercase;
+    color: #999; font-weight: 400;
+    border-bottom: 2px solid var(--light-gray);
+    text-align: left; white-space: nowrap;
+    cursor: pointer; user-select: none;
+    transition: color .2s;
+}
+.admin-table thead th:hover { color: var(--black); }
+.admin-table thead th.sort-asc::after  { content: ' ↑'; color: var(--accent); }
+.admin-table thead th.sort-desc::after { content: ' ↓'; color: var(--accent); }
+
+.admin-table tbody tr {
+    border-bottom: 1px solid rgba(235,235,235,.7);
+    transition: background .15s;
+}
+.admin-table tbody tr:hover { background: var(--cream); }
+.admin-table tbody td { padding: 1rem 1rem; vertical-align: middle; }
+
+.user-cell { display: flex; align-items: center; gap: .9rem; }
+.user-mini-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--black); color: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 500; flex-shrink: 0;
+}
+.user-mini-name  { font-size: .85rem; font-weight: 400; color: var(--black); }
+.user-mini-email { font-size: .75rem; color: #999; margin-top: .1rem; }
+
+.status-badge {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .25rem .7rem; font-size: .65rem;
+    letter-spacing: .1em; text-transform: uppercase;
+}
+.status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.badge-active::before   { background: #16a34a; }
+.badge-active    { color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; }
+.badge-inactive::before { background: #999; }
+.badge-inactive  { color: #777; background: #f5f5f5; border: 1px solid #e0e0e0; }
+
+.action-group { display: flex; gap: .5rem; }
+.action-btn {
+    padding: .4rem .85rem;
+    border: 1px solid var(--light-gray); background: none;
+    font-family: var(--sans); font-size: .68rem;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--charcoal); text-decoration: none;
+    transition: all .2s; white-space: nowrap;
+}
+.action-btn:hover { border-color: var(--black); color: var(--black); }
+.action-btn-danger { color: var(--danger); border-color: rgba(192,57,43,.3); }
+.action-btn-danger:hover { background: var(--danger); color: var(--white); border-color: var(--danger); }
+
+/* ── Empty state ── */
+.empty-state {
+    text-align: center; padding: 5rem 2rem;
+    color: #bbb;
+}
+.empty-state svg { width: 48px; height: 48px; stroke-width: 1; margin: 0 auto 1.2rem; }
+.empty-state p { font-size: .9rem; }
+
+/* ── Pagination ── */
+.pagination {
+    display: flex; justify-content: center; align-items: center;
+    gap: .4rem; margin-top: 2rem;
+}
+.page-btn {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--light-gray); background: none;
+    font-family: var(--sans); font-size: .8rem;
+    color: var(--charcoal); cursor: pointer; text-decoration: none;
+    transition: all .2s;
+}
+.page-btn:hover, .page-btn.active {
+    background: var(--black); color: var(--white); border-color: var(--black);
+}
+.page-btn svg { width: 14px; height: 14px; stroke-width: 2; }
+
+/* ── Result count ── */
+.result-count {
+    font-size: .75rem; color: #999; letter-spacing: .06em;
+    margin-bottom: .8rem;
+}
+.result-count strong { color: var(--black); }
+
+@@media (max-width: 768px) {
+    .admin-stats { grid-template-columns: 1fr; }
+    .admin-table { font-size: .78rem; }
+    .action-group { flex-direction: column; }
+}
+</style>
+}
+
+<div class="admin-page">
+
+    <!-- Header -->
+    <div class="admin-header">
+        <div>
+            <div class="admin-eyebrow">Quản Trị Viên</div>
+            <h1 class="admin-title">Quản Lý <em>Người Dùng</em></h1>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="admin-stats">
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </div>
+            <div>
+                <div class="stat-card-num">@Model.Count()</div>
+                <div class="stat-card-label">Tổng người dùng</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+            </div>
+            <div>
+                <div class="stat-card-num">@Model.Count(u => u.EmailConfirmed)</div>
+                <div class="stat-card-label">Đã xác thực email</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <div>
+                <div class="stat-card-num">@Model.Count(u => !u.EmailConfirmed)</div>
+                <div class="stat-card-label">Chưa xác thực</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="admin-toolbar">
+        <div class="search-box">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" id="search-input" placeholder="Tìm theo email, tên tài khoản..." />
+        </div>
+        <div class="toolbar-right">
+            <button class="btn-sm" onclick="exportTable()">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Xuất CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Result count -->
+    <div class="result-count" id="result-count">
+        Hiển thị <strong>@Model.Count()</strong> người dùng
+    </div>
+
+    <!-- Table -->
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+            </svg>
+            <p>Chưa có người dùng nào.</p>
+        </div>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table" id="users-table">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Người dùng</th>
+                        <th onclick="sortTable(1)">Email</th>
+                        <th onclick="sortTable(2)">Trạng thái</th>
+                        <th onclick="sortTable(3)">Xác thực</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    @foreach (var user in Model)
+                    {
+                        <tr data-name="@user.UserName?.ToLower()" data-email="@user.Email?.ToLower()">
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-mini-avatar">
+                                        @user.UserName?.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <div>
+                                        <div class="user-mini-name">@user.UserName</div>
+                                        <div class="user-mini-email">ID: @user.Id.Substring(0, 8)…</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@user.Email</td>
+                            <td>
+                                @if (user.LockoutEnd == null || user.LockoutEnd < DateTimeOffset.UtcNow)
+                                {
+                                    <span class="status-badge badge-active">Hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge badge-inactive">Bị khóa</span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.EmailConfirmed)
+                                {
+                                    <span class="status-badge badge-active">Đã xác thực</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge badge-inactive">Chưa xác thực</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="action-group">
+                                    <a asp-action="Details"     asp-route-id="@user.Id" class="action-btn">Chi tiết</a>
+                                    <a asp-action="ManageRoles" asp-route-id="@user.Id" class="action-btn" style="color:var(--accent);border-color:rgba(184,134,11,.3)">
+                                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:12px;height:12px;stroke-width:2;vertical-align:middle;margin-right:.2rem"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                        Phân quyền
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+<script>
+// Live search
+document.getElementById('search-input')?.addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    const rows = document.querySelectorAll('#table-body tr');
+    let visible = 0;
+    rows.forEach(row => {
+        const match = row.dataset.name?.includes(q) || row.dataset.email?.includes(q);
+        row.style.display = (!q || match) ? '' : 'none';
+        if (!q || match) visible++;
+    });
+    const el = document.getElementById('result-count');
+    if (el) el.innerHTML = `Hiển thị <strong>${visible}</strong> người dùng`;
+});
+
+// Sort table
+let sortDir = {};
+function sortTable(col) {
+    const tbody = document.getElementById('table-body');
+    const rows  = Array.from(tbody.querySelectorAll('tr'));
+    const dir   = sortDir[col] = -(sortDir[col] || 1);
+    rows.sort((a, b) => {
+        const ta = a.cells[col]?.innerText.trim().toLowerCase() || '';
+        const tb = b.cells[col]?.innerText.trim().toLowerCase() || '';
+        return ta.localeCompare(tb) * dir;
+    });
+    rows.forEach(r => tbody.appendChild(r));
+
+    // Update sort indicators
+    document.querySelectorAll('.admin-table thead th').forEach((th, i) => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        if (i === col) th.classList.add(dir === 1 ? 'sort-asc' : 'sort-desc');
+    });
+}
+
+// Export CSV
+function exportTable() {
+    const rows = document.querySelectorAll('#table-body tr');
+    let csv = 'Tên tài khoản,Email,Trạng thái,Xác thực\n';
+    rows.forEach(row => {
+        if (row.style.display !== 'none') {
+            const cells = row.querySelectorAll('td');
+            const name   = cells[0]?.querySelector('.user-mini-name')?.innerText.trim() || '';
+            const email  = cells[1]?.innerText.trim() || '';
+            const status = cells[2]?.innerText.trim() || '';
+            const verify = cells[3]?.innerText.trim() || '';
+            csv += `"${name}","${email}","${status}","${verify}"\n`;
+        }
+    });
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent('\uFEFF' + csv);
+    a.download = `users_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+}
+</script>
+}

@@ -1,0 +1,243 @@
+@model Project_Essay_Course.Models.Order
+@{ ViewData["Title"] = "Chi Tiết Đơn Hàng"; }
+
+@section Styles {
+<style>
+.order-detail-page { max-width: 860px; margin: 3rem auto; padding: 0 2rem; }
+.breadcrumb { display:flex; align-items:center; gap:.6rem; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:#999; margin-bottom:2rem; }
+.breadcrumb a { color:#999; text-decoration:none; transition:color .2s; }
+.breadcrumb a:hover { color:var(--black); }
+.breadcrumb svg { width:12px; height:12px; stroke-width:2; }
+
+.od-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem; flex-wrap:wrap; gap:1rem; }
+.od-code { font-family:var(--serif); font-size:1.6rem; font-weight:300; }
+.od-code em { font-style:italic; }
+.od-date { font-size:.78rem; color:#999; margin-top:.3rem; }
+
+/* Status timeline */
+.status-timeline { display:flex; align-items:flex-start; margin-bottom:2rem; overflow-x:auto; padding-bottom:.5rem; }
+.timeline-step { display:flex; flex-direction:column; align-items:center; flex:1; min-width:80px; }
+.timeline-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; z-index:1; }
+.timeline-dot svg { width:13px; height:13px; stroke-width:2.5; }
+.timeline-dot.done  { background:var(--black); color:var(--white); }
+.timeline-dot.active { background:var(--accent); color:var(--white); }
+.timeline-dot.future { background:var(--light-gray); color:#bbb; }
+.timeline-label { font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:#999; margin-top:.5rem; text-align:center; line-height:1.3; }
+.timeline-label.done   { color:var(--black); font-weight:500; }
+.timeline-label.active { color:var(--accent); font-weight:500; }
+.timeline-line { flex:1; height:2px; margin-top:14px; }
+.timeline-line.done   { background:var(--black); }
+.timeline-line.future { background:var(--light-gray); }
+
+/* Cancelled state */
+.cancelled-banner { display:flex; gap:.8rem; align-items:center; padding:1rem 1.2rem; background:#fff5f5; border:1px solid rgba(192,57,43,.2); border-left:4px solid #c0392b; margin-bottom:1.5rem; font-size:.85rem; color:#c0392b; }
+.cancelled-banner svg { width:18px; height:18px; stroke-width:1.8; flex-shrink:0; }
+
+/* Cards */
+.od-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem; }
+.od-card { border:1px solid var(--light-gray); padding:1.4rem 1.6rem; }
+.od-card-title { font-size:.65rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:1rem; }
+.od-info-row { display:flex; justify-content:space-between; align-items:flex-start; padding:.35rem 0; font-size:.83rem; border-bottom:1px solid rgba(235,235,235,.6); gap:.5rem; }
+.od-info-row:last-child { border-bottom:none; }
+.od-info-label { color:#999; flex-shrink:0; }
+.od-info-value { font-weight:500; text-align:right; }
+.od-paid-badge { font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; padding:.2rem .55rem; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
+.od-unpaid-badge { font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; padding:.2rem .55rem; background:#fef2f2; color:#c0392b; border:1px solid #fecaca; }
+
+/* Items table */
+.od-items { border:1px solid var(--light-gray); margin-bottom:1.5rem; }
+.od-items-head { display:grid; grid-template-columns:1fr 90px 80px 90px; gap:.5rem; padding:.6rem 1.2rem; background:#f9f9f8; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:#aaa; }
+.od-items-head span:last-child, .od-item-sub { text-align:right; }
+.od-item { display:grid; grid-template-columns:1fr 90px 80px 90px; gap:.5rem; padding:.9rem 1.2rem; border-top:1px solid rgba(235,235,235,.6); align-items:center; }
+.od-item-name { font-size:.88rem; }
+.od-item-variants { display:flex; flex-wrap:wrap; gap:.3rem; margin-top:.35rem; }
+.od-variant-tag { font-size:.65rem; letter-spacing:.06em; padding:.18rem .55rem; border:1px solid var(--light-gray); background:var(--cream); color:var(--charcoal); }
+.od-item-sku { font-size:.65rem; color:#bbb; margin-top:.25rem; font-family:monospace; }
+.od-item-price, .od-item-qty { font-size:.85rem; text-align:center; }
+.od-item-sub { font-size:.85rem; font-weight:500; }
+
+/* Totals */
+.od-totals { border:1px solid var(--light-gray); padding:1.2rem 1.4rem; }
+.od-total-row { display:flex; justify-content:space-between; padding:.4rem 0; font-size:.88rem; }
+.od-total-final { border-top:2px solid var(--black); margin-top:.6rem; padding-top:.8rem; }
+.od-total-final .od-total-label { font-family:var(--serif); font-size:1rem; }
+.od-total-final .od-total-val   { font-family:var(--serif); font-size:1.2rem; font-weight:600; }
+
+/* Actions */
+.od-actions { display:flex; gap:.8rem; margin-top:1.5rem; flex-wrap:wrap; }
+.btn-back { padding:.8rem 1.8rem; border:1px solid var(--light-gray); background:none; font-family:var(--sans); font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; color:var(--charcoal); text-decoration:none; transition:all .2s; }
+.btn-back:hover { border-color:var(--black); color:var(--black); }
+.btn-cancel { padding:.8rem 1.8rem; border:1px solid rgba(192,57,43,.4); background:none; font-family:var(--sans); font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; color:var(--danger); cursor:pointer; transition:all .2s; }
+.btn-cancel:hover { background:var(--danger); color:var(--white); border-color:var(--danger); }
+.btn-invoice { padding:.8rem 1.8rem; border:1px solid var(--accent); background:none; font-family:var(--sans); font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); text-decoration:none; transition:all .2s; display:inline-flex; align-items:center; }
+.btn-invoice:hover { background:var(--accent); color:var(--white); }
+
+@@media (max-width:640px) { .od-grid { grid-template-columns:1fr; } .od-items-head, .od-item { grid-template-columns:1fr auto; } .od-items-head span:nth-child(2), .od-items-head span:nth-child(3), .od-item-price, .od-item-qty { display:none; } }
+</style>
+}
+
+<div class="order-detail-page">
+
+    <div class="breadcrumb">
+        <a asp-action="Index">Đơn hàng</a>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+        <span>#@Model.OrderCode</span>
+    </div>
+
+    <div class="od-header">
+        <div>
+            <h1 class="od-code">Đơn <em>#@Model.OrderCode</em></h1>
+            <div class="od-date">Đặt lúc @Model.CreatedAt.ToLocalTime().ToString("HH:mm dd/MM/yyyy")</div>
+        </div>
+        <span style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1rem;font-weight:500;color:@Model.StatusColor;background:@(Model.StatusColor)1a;border:1px solid @(Model.StatusColor)40">
+            @Model.StatusDisplay
+        </span>
+    </div>
+
+    @if (Model.Status == Project_Essay_Course.Models.OrderStatus.Cancelled)
+    {
+        <div class="cancelled-banner">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            Đơn hàng này đã bị hủy.
+        </div>
+    }
+    else
+    {
+        
+            var steps = new[] {
+                (Project_Essay_Course.Models.OrderStatus.Pending,    "Chờ\nxác nhận"),
+                (Project_Essay_Course.Models.OrderStatus.Confirmed,  "Đã\nxác nhận"),
+                (Project_Essay_Course.Models.OrderStatus.Processing, "Chuẩn\nbị hàng"),
+                (Project_Essay_Course.Models.OrderStatus.Shipping,   "Đang\ngiao"),
+                (Project_Essay_Course.Models.OrderStatus.Delivered,  "Hoàn\nthành")
+            };
+        
+        <div class="status-timeline">
+            @for (int i = 0; i < steps.Length; i++)
+            {
+                var (stepStatus, stepLabel) = steps[i];
+                var isDone   = (int)Model.Status > (int)stepStatus;
+                var isActive = Model.Status == stepStatus;
+                var dotClass = isDone ? "done" : (isActive ? "active" : "future");
+
+                <div class="timeline-step">
+                    <div class="timeline-dot @dotClass">
+                        @if (isDone)
+                        {
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                        }
+                        else
+                        {
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="3"/></svg>
+                        }
+                    </div>
+                    <div class="timeline-label @dotClass">@stepLabel</div>
+                </div>
+
+                @if (i < steps.Length - 1)
+                {
+                    <div class="timeline-line @(isDone ? "done" : "future")"></div>
+                }
+            }
+        </div>
+    }
+
+    <div class="od-grid">
+        <div class="od-card">
+            <div class="od-card-title">Thông Tin Nhận Hàng</div>
+            <div class="od-info-row"><span class="od-info-label">Họ tên</span><span class="od-info-value">@Model.FullName</span></div>
+            <div class="od-info-row"><span class="od-info-label">SĐT</span><span class="od-info-value">@Model.Phone</span></div>
+            @if (!string.IsNullOrEmpty(Model.Email))
+            {
+                <div class="od-info-row"><span class="od-info-label">Email</span><span class="od-info-value">@Model.Email</span></div>
+            }
+            <div class="od-info-row"><span class="od-info-label">Địa chỉ</span><span class="od-info-value">@Model.Address</span></div>
+            <div class="od-info-row"><span class="od-info-label">Phường/Xã</span><span class="od-info-value">@Model.Ward</span></div>
+            <div class="od-info-row"><span class="od-info-label">Quận/Huyện</span><span class="od-info-value">@Model.District</span></div>
+            <div class="od-info-row"><span class="od-info-label">Tỉnh/TP</span><span class="od-info-value">@Model.Province</span></div>
+            @if (!string.IsNullOrEmpty(Model.Note))
+            {
+                <div class="od-info-row"><span class="od-info-label">Ghi chú</span><span class="od-info-value">@Model.Note</span></div>
+            }
+        </div>
+        <div class="od-card">
+            <div class="od-card-title">Thanh Toán</div>
+            <div class="od-info-row"><span class="od-info-label">Phương thức</span><span class="od-info-value">@Model.PaymentMethodDisplay</span></div>
+            <div class="od-info-row">
+                <span class="od-info-label">Trạng thái</span>
+                <span class="od-info-value">
+                    @if (Model.PaymentStatus == Project_Essay_Course.Models.PaymentStatus.Paid)
+                    { <span class="od-paid-badge">Đã thanh toán</span> }
+                    else
+                    { <span class="od-unpaid-badge">Chưa thanh toán</span> }
+                </span>
+            </div>
+            @if (Model.PaidAt.HasValue)
+            {
+                <div class="od-info-row"><span class="od-info-label">Thời gian TT</span><span class="od-info-value">@Model.PaidAt.Value.ToLocalTime().ToString("HH:mm dd/MM")</span></div>
+            }
+        </div>
+    </div>
+
+    <div class="od-items">
+        <div class="od-items-head">
+            <span>Sản phẩm</span>
+            <span style="text-align:center">Đơn giá</span>
+            <span style="text-align:center">SL</span>
+            <span style="text-align:right">Thành tiền</span>
+        </div>
+        @foreach (var item in Model.OrderItems)
+        {
+            <div class="od-item">
+                <div>
+                    <div class="od-item-name">@item.ProductName</div>
+                    @if (!string.IsNullOrEmpty(item.VariantDisplay) && item.VariantDisplay != "Mặc định")
+                    {
+                        <div class="od-item-variants">
+                            @foreach (var part in item.VariantDisplay.Split(" / "))
+                            {
+                                <span class="od-variant-tag">@part.Trim()</span>
+                            }
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(item.SKU))
+                    { <div class="od-item-sku">SKU: @item.SKU</div> }
+                </div>
+                <div class="od-item-price">@item.UnitPrice.ToString("N0")₫</div>
+                <div class="od-item-qty">@item.Quantity</div>
+                <div class="od-item-sub">@item.SubTotal.ToString("N0")₫</div>
+            </div>
+        }
+    </div>
+
+    <div class="od-totals">
+        <div class="od-total-row"><span>Tạm tính</span><span>@Model.SubTotal.ToString("N0")₫</span></div>
+        <div class="od-total-row">
+            <span>Phí vận chuyển</span>
+            <span>@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("N0") + "₫")</span>
+        </div>
+        <div class="od-total-row od-total-final">
+            <span class="od-total-label">Tổng cộng</span>
+            <span class="od-total-val">@Model.TotalAmount.ToString("N0")₫</span>
+        </div>
+    </div>
+
+    <div class="od-actions">
+        <a asp-action="Index" class="btn-back">
+            ← Danh sách đơn hàng
+        </a>
+        <a asp-action="Invoice" asp-route-id="@Model.OrderId" class="btn-invoice" target="_blank">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;vertical-align:middle;margin-right:.3rem"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Xuất hóa đơn
+        </a>
+        @if (Model.CanCancel)
+        {
+            <form asp-action="Cancel" asp-route-id="@Model.OrderId" method="post"
+                  onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-cancel">Hủy đơn hàng</button>
+            </form>
+        }
+    </div>
+
+</div>

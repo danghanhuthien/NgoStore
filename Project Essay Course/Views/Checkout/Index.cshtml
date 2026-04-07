@@ -1,0 +1,343 @@
+@model Project_Essay_Course.ViewModels.Order_ViewModel.CheckoutViewModel
+@{
+    ViewData["Title"] = "Thanh Toán";
+}
+
+@section Styles {
+<style>
+.checkout-page { max-width: 1200px; margin: 3rem auto; padding: 0 2rem; }
+.checkout-header { margin-bottom: 2.5rem; }
+.checkout-eyebrow { font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:.4rem; }
+.checkout-title { font-family:var(--serif); font-size:clamp(1.8rem,3vw,2.6rem); font-weight:300; }
+.checkout-title em { font-style:italic; }
+
+.checkout-layout { display:grid; grid-template-columns:1fr 400px; gap:3rem; align-items:start; }
+
+/* ── Form card ── */
+.co-card { border:1px solid var(--light-gray); padding:2rem; margin-bottom:1.4rem; }
+.co-card-title { font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:1.5rem; padding-bottom:.8rem; border-bottom:1px solid var(--light-gray); }
+
+.field-group { margin-bottom:1.2rem; }
+.field-label { display:block; font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--charcoal); margin-bottom:.45rem; }
+.field-label .req { color:var(--danger); margin-left:.2rem; }
+.field-input, .field-select { width:100%; padding:.8rem 1rem; border:1px solid var(--light-gray); background:var(--white); font-family:var(--sans); font-size:.9rem; color:var(--black); outline:none; transition:border-color var(--transition); }
+.field-input:focus, .field-select:focus { border-color:var(--black); }
+.field-error { font-size:.72rem; color:var(--danger); margin-top:.35rem; display:block; }
+.field-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.field-textarea { width:100%; padding:.8rem 1rem; border:1px solid var(--light-gray); background:var(--white); font-family:var(--sans); font-size:.9rem; resize:vertical; min-height:80px; outline:none; transition:border-color var(--transition); }
+.field-textarea:focus { border-color:var(--black); }
+
+/* Payment method */
+.payment-options { display:flex; flex-direction:column; gap:.8rem; }
+.payment-option { display:flex; align-items:center; gap:1rem; padding:1rem 1.2rem; border:1px solid var(--light-gray); cursor:pointer; transition:border-color .2s, background .2s; }
+.payment-option:has(input:checked) { border-color:var(--black); background:var(--cream); }
+.payment-option input[type=radio] { accent-color:var(--black); width:16px; height:16px; flex-shrink:0; }
+.payment-option-icon { width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:var(--cream); flex-shrink:0; }
+.payment-option-icon svg { width:18px; height:18px; stroke-width:1.5; color:var(--charcoal); }
+.payment-option-info {}
+.payment-option-name { font-size:.88rem; font-weight:500; color:var(--black); }
+.payment-option-desc { font-size:.75rem; color:#999; margin-top:.15rem; }
+
+/* ── Order summary ── */
+.co-summary { border:1px solid var(--light-gray); padding:2rem; position:sticky; top:calc(var(--header-h) + 1.5rem); }
+.co-summary-title { font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:1.5rem; padding-bottom:.8rem; border-bottom:1px solid var(--light-gray); }
+
+.co-items { margin-bottom:1.5rem; display:flex; flex-direction:column; gap:.8rem; }
+.co-item { display:flex; gap:.8rem; align-items:flex-start; }
+.co-item-img { width:52px; height:65px; object-fit:cover; flex-shrink:0; background:var(--cream); }
+.co-item-img-ph { width:52px; height:65px; flex-shrink:0; background:var(--cream); display:flex; align-items:center; justify-content:center; }
+.co-item-img-ph svg { width:18px; height:18px; color:var(--stone); stroke-width:1; }
+.co-item-name { font-size:.85rem; color:var(--black); line-height:1.3; }
+.co-item-variant { font-size:.72rem; color:#bbb; margin-top:.15rem; }
+.co-item-price { font-size:.85rem; font-weight:500; margin-left:auto; white-space:nowrap; padding-left:.5rem; }
+.co-item-qty { font-size:.72rem; color:#999; }
+
+.co-divider { border:none; border-top:1px solid var(--light-gray); margin:1rem 0; }
+
+.co-row { display:flex; justify-content:space-between; align-items:center; padding:.4rem 0; font-size:.88rem; }
+.co-row-label { color:var(--charcoal); }
+.co-row-value { font-weight:500; }
+.co-row-free { color:#16a34a; font-weight:400; font-size:.82rem; }
+.co-total { display:flex; justify-content:space-between; align-items:center; padding:.8rem 0 0; border-top:2px solid var(--black); margin-top:.5rem; }
+.co-total-label { font-family:var(--serif); font-size:1rem; }
+.co-total-value { font-family:var(--serif); font-size:1.3rem; font-weight:600; color:var(--black); }
+
+.btn-place-order { width:100%; padding:1rem; background:var(--black); color:var(--white); border:1px solid var(--black); font-family:var(--sans); font-size:.78rem; font-weight:400; letter-spacing:.16em; text-transform:uppercase; cursor:pointer; margin-top:1.2rem; transition:background var(--transition); }
+.btn-place-order:hover { background:var(--charcoal); }
+
+.co-note { font-size:.72rem; color:#bbb; text-align:center; margin-top:.7rem; line-height:1.55; }
+
+.val-summary { background:#fef2f2; border-left:3px solid var(--danger); padding:.9rem 1rem; margin-bottom:1.2rem; font-size:.82rem; color:var(--danger); }
+.val-summary ul { padding-left:1.2rem; margin:0; }
+
+@@media (max-width:900px) { .checkout-layout { grid-template-columns:1fr; } .co-summary { position:static; } }
+@@media (max-width:600px) { .checkout-page { padding:0 1rem; } .field-grid-2 { grid-template-columns:1fr; } }
+</style>
+}
+
+<div class="checkout-page">
+
+    <div class="checkout-header">
+        <div class="checkout-eyebrow">Mua Sắm</div>
+        <h1 class="checkout-title">Thanh <em>Toán</em></h1>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+    {
+        <div class="val-summary">
+            <ul>
+                @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                { <li>@err.ErrorMessage</li> }
+            </ul>
+        </div>
+    }
+
+    <form asp-action="Index" method="post" novalidate>
+        @Html.AntiForgeryToken()
+
+        <div class="checkout-layout">
+
+            <div>
+
+                <div class="co-card">
+                    <div class="co-card-title">Thông Tin Nhận Hàng</div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="FullName">Họ và tên <span class="req">*</span></label>
+                        <input asp-for="FullName" class="field-input" placeholder="Nguyễn Văn A" />
+                        <span asp-validation-for="FullName" class="field-error"></span>
+                    </div>
+
+                    <div class="field-grid-2">
+                        <div class="field-group">
+                            <label class="field-label" asp-for="Phone">Số điện thoại <span class="req">*</span></label>
+                            <input asp-for="Phone" class="field-input" placeholder="0901234567" />
+                            <span asp-validation-for="Phone" class="field-error"></span>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" asp-for="Email">Email</label>
+                            <input asp-for="Email" type="email" class="field-input" placeholder="email@example.com" />
+                            <span asp-validation-for="Email" class="field-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="co-card">
+                    <div class="co-card-title">Địa Chỉ Giao Hàng</div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="Province">Tỉnh / Thành phố <span class="req">*</span></label>
+                        <select asp-for="Province" class="field-select" id="sel-province" onchange="loadDistricts(this.value)">
+                            <option value="">— Chọn tỉnh / thành phố —</option>
+                        </select>
+                        <span asp-validation-for="Province" class="field-error"></span>
+                    </div>
+
+                    <div class="field-grid-2">
+                        <div class="field-group">
+                            <label class="field-label" asp-for="District">Quận / Huyện <span class="req">*</span></label>
+                            <select asp-for="District" class="field-select" id="sel-district" onchange="loadWards(this.value)" disabled>
+                                <option value="">— Chọn quận / huyện —</option>
+                            </select>
+                            <span asp-validation-for="District" class="field-error"></span>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" asp-for="Ward">Phường / Xã <span class="req">*</span></label>
+                            <select asp-for="Ward" class="field-select" id="sel-ward" disabled>
+                                <option value="">— Chọn phường / xã —</option>
+                            </select>
+                            <span asp-validation-for="Ward" class="field-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="Address">Số nhà, tên đường <span class="req">*</span></label>
+                        <input asp-for="Address" class="field-input" placeholder="VD: 123 Nguyễn Huệ" />
+                        <span asp-validation-for="Address" class="field-error"></span>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="Note">Ghi chú</label>
+                        <textarea asp-for="Note" class="field-textarea" placeholder="Ghi chú cho người giao hàng..."></textarea>
+                    </div>
+                </div>
+
+                <div class="co-card">
+                    <div class="co-card-title">Phương Thức Thanh Toán</div>
+                    <div class="payment-options">
+
+                        <label class="payment-option">
+                            <input type="radio" asp-for="PaymentMethod" value="0" />
+                            <div class="payment-option-icon">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M17 9V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2m2 4h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm7-5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/></svg>
+                            </div>
+                            <div class="payment-option-info">
+                                <div class="payment-option-name">Tiền mặt khi nhận hàng (COD)</div>
+                                <div class="payment-option-desc">Thanh toán khi nhận được hàng</div>
+                            </div>
+                        </label>
+
+                        <label class="payment-option">
+                            <input type="radio" asp-for="PaymentMethod" value="1" />
+                            <div class="payment-option-icon">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                            </div>
+                            <div class="payment-option-info">
+                                <div class="payment-option-name">Chuyển khoản ngân hàng / QR</div>
+                                <div class="payment-option-desc">Quét mã QR hoặc chuyển khoản — xác nhận tự động</div>
+                            </div>
+                        </label>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div>
+                <div class="co-summary">
+                    <div class="co-summary-title">Đơn Hàng Của Bạn (@Model.CartItems.Count sản phẩm)</div>
+
+                    <div class="co-items">
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <div class="co-item">
+                                @if (!string.IsNullOrEmpty(item.ProductImage))
+                                {
+                                    <img class="co-item-img" src="@item.ProductImage" alt="@item.ProductName" />
+                                }
+                                else
+                                {
+                                    <div class="co-item-img-ph"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>
+                                }
+                                <div style="flex:1;min-width:0">
+                                    <div class="co-item-name">@item.ProductName</div>
+                                    @if (!string.IsNullOrEmpty(item.VariantDisplay))
+                                    {
+                                        <div class="co-item-variant">@item.VariantDisplay</div>
+                                    }
+                                    <div class="co-item-qty">x@item.Quantity</div>
+                                </div>
+                                <div class="co-item-price">@item.SubTotal.ToString("N0")₫</div>
+                            </div>
+                        }
+                    </div>
+
+                    <hr class="co-divider" />
+
+                    <div class="co-row">
+                        <span class="co-row-label">Tạm tính</span>
+                        <span class="co-row-value">@Model.SubTotal.ToString("N0")₫</span>
+                    </div>
+                    <div class="co-row">
+                        <span class="co-row-label">Phí vận chuyển</span>
+                        @if (Model.ShippingFee == 0)
+                        { <span class="co-row-free">Miễn phí</span> }
+                        else
+                        { <span class="co-row-value">@Model.ShippingFee.ToString("N0")₫</span> }
+                    </div>
+
+                    <div class="co-total">
+                        <span class="co-total-label">Tổng cộng</span>
+                        <span class="co-total-value">@Model.TotalAmount.ToString("N0")₫</span>
+                    </div>
+
+                    <button type="submit" class="btn-place-order">Đặt Hàng</button>
+
+                    <div class="co-note">
+                        Bằng cách đặt hàng, bạn đồng ý với
+                        <a asp-controller="Home" asp-action="Terms" style="color:var(--black);border-bottom:1px solid">Điều khoản dịch vụ</a>
+                        của MAISON.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+// ── Dữ liệu tỉnh/huyện/xã từ API ESGOO (miễn phí, không cần key) ──
+const API = 'https://esgoo.net/api-tinhthanh';
+
+async function loadProvinces() {
+    try {
+        const res  = await fetch(`${API}/1/0.htm`);
+        const data = await res.json();
+        const sel  = document.getElementById('sel-province');
+        if (data.error === 0) {
+            data.data.forEach(p => {
+                const opt = new Option(p.full_name, p.full_name);
+                opt.dataset.id = p.id;
+                sel.appendChild(opt);
+            });
+            // Restore giá trị cũ (khi validation fail)
+            const saved = '@Model.Province';
+            if (saved) {
+                sel.value = saved;
+                if (sel.value) await loadDistricts(saved, '@Model.District');
+            }
+        }
+    } catch (e) { console.error('Load provinces error:', e); }
+}
+
+async function loadDistricts(provinceName, savedDistrict = '') {
+    const sel = document.getElementById('sel-district');
+    const wrd = document.getElementById('sel-ward');
+    sel.innerHTML = '<option value="">— Chọn quận / huyện —</option>';
+    wrd.innerHTML = '<option value="">— Chọn phường / xã —</option>';
+    sel.disabled  = true;
+    wrd.disabled  = true;
+
+    // Tìm id của tỉnh từ option
+    const provSel = document.getElementById('sel-province');
+    const selOpt  = Array.from(provSel.options).find(o => o.value === provinceName);
+    if (!selOpt) return;
+    const provId  = selOpt.dataset.id;
+
+    try {
+        const res  = await fetch(`${API}/2/${provId}.htm`);
+        const data = await res.json();
+        if (data.error === 0) {
+            data.data.forEach(d => {
+                const opt = new Option(d.full_name, d.full_name);
+                opt.dataset.id = d.id;
+                sel.appendChild(opt);
+            });
+            sel.disabled = false;
+            if (savedDistrict) {
+                sel.value = savedDistrict;
+                if (sel.value) await loadWards(savedDistrict, '@Model.Ward');
+            }
+        }
+    } catch (e) { console.error('Load districts error:', e); }
+}
+
+async function loadWards(districtName, savedWard = '') {
+    const wrd = document.getElementById('sel-ward');
+    wrd.innerHTML = '<option value="">— Chọn phường / xã —</option>';
+    wrd.disabled  = true;
+
+    const distSel = document.getElementById('sel-district');
+    const selOpt  = Array.from(distSel.options).find(o => o.value === districtName);
+    if (!selOpt) return;
+    const distId  = selOpt.dataset.id;
+
+    try {
+        const res  = await fetch(`${API}/3/${distId}.htm`);
+        const data = await res.json();
+        if (data.error === 0) {
+            data.data.forEach(w => {
+                const opt = new Option(w.full_name, w.full_name);
+                wrd.appendChild(opt);
+            });
+            wrd.disabled = false;
+            if (savedWard) wrd.value = savedWard;
+        }
+    } catch (e) { console.error('Load wards error:', e); }
+}
+
+// Load khi trang mở
+loadProvinces();
+</script>
+}

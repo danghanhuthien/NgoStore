@@ -1,0 +1,299 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject UserManager<IdentityUser> LayoutUserManager
+@inject Project_Essay_Course.Data.ApplicationDbContext LayoutDb
+
+@{
+    // ── Cart badge count ──────────────────────────────────────────
+    int cartCount = 0;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var uid = LayoutUserManager.GetUserId(User);
+        if (uid != null)
+        {
+            cartCount = await LayoutDb.CartItems
+                .Where(c => c.UserId == uid)
+                .SumAsync(c => c.Quantity);
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – NGỘ STORE</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/css/mainson.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+    <!-- ════════════════════════════════════════
+         HEADER
+    ════════════════════════════════════════ -->
+    <header id="main-header">
+        <a asp-controller="Home" asp-action="Index" class="logo">NGỘ STORE<span>.</span></a>
+
+        <nav>
+            <a asp-controller="Home"    asp-action="Index">Trang Chủ</a>
+            <a asp-controller="Product" asp-action="Index">Sản phẩm</a>
+            <a asp-controller="LookBook"    asp-action="Lookbook">Lookbook</a>
+            <a asp-controller="LookBook" asp-action="About">Về Chúng Tôi</a>
+        </nav>
+
+        <div class="header-actions">
+            <!-- Tìm kiếm -->
+            <button class="icon-btn" title="Tìm kiếm" onclick="document.getElementById('search-overlay').classList.toggle('open')">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                </svg>
+            </button>
+
+            <!-- Tài khoản -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="dropdown" style="position:relative">
+                    <button class="icon-btn user-dropdown-toggle" title="Tài khoản">
+                        <div class="user-avatar-mini">@(User.Identity?.Name?.Substring(0, 1).ToUpper())</div>
+                    </button>
+                    <ul class="user-dropdown-menu">
+                        <li class="user-dropdown-header">
+                            <div class="udh-name">@User.Identity?.Name</div>
+                            <div class="udh-role">Thành viên</div>
+                        </li>
+                        <li><hr class="udm-divider"></li>
+                        <li><a asp-controller="Account" asp-action="Profile">👤 &nbsp;Hồ sơ cá nhân</a></li>
+                        <li><a asp-controller="Order"   asp-action="Index">📦 &nbsp;Đơn hàng của tôi</a></li>
+                        <li><a asp-controller="Favourite" asp-action="Index">❤️ &nbsp;Yêu thích</a></li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li><hr class="udm-divider"></li>
+                            <li><a asp-controller="Admin" asp-action="Index">⚙️ &nbsp;Quản trị</a></li>
+                        }
+                        <li><hr class="udm-divider"></li>
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="udm-logout">🚪 &nbsp;Đăng xuất</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <a class="icon-btn" asp-controller="Account" asp-action="Login" title="Đăng nhập">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </a>
+            }
+
+            <!-- Yêu thích -->
+            <a asp-controller="Favourite" asp-action="Index" class="icon-btn" title="Yêu thích">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+            </a>
+
+            <!-- Giỏ hàng — badge lấy trực tiếp từ DB qua inject -->
+            <a asp-controller="Cart" asp-action="Index" class="icon-btn" title="Giỏ hàng" style="position:relative">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 0 1-8 0" />
+                </svg>
+                @if (cartCount > 0)
+                {
+                    <span class="cart-badge" id="cart-badge-count">@cartCount</span>
+                }
+                else
+                {
+                    <span class="cart-badge" id="cart-badge-count" style="display:none">0</span>
+                }
+            </a>
+
+            <!-- Mobile menu toggle -->
+            <button class="icon-btn mobile-menu-btn d-md-none" onclick="document.getElementById('mobile-nav').classList.toggle('open')">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M3 12h18M3 6h18M3 18h18" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile nav -->
+    <div class="mobile-nav" id="mobile-nav">
+        <button class="mobile-nav-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">✕</button>
+        <a asp-controller="Home"    asp-action="Index">Trang Chủ</a>
+        <a asp-controller="Product" asp-action="Index">Sản Phẩm</a>
+        <a asp-controller="Home"    asp-action="Lookbook">Lookbook</a>
+        <a asp-controller="Home"    asp-action="About">Về Chúng Tôi</a>
+        <div class="mobile-nav-divider"></div>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Account"  asp-action="Profile">Hồ sơ cá nhân</a>
+            <a asp-controller="Cart"     asp-action="Index">Giỏ hàng (@cartCount)</a>
+            <a asp-controller="Favourite" asp-action="Index">Yêu thích</a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login">Đăng nhập</a>
+            <a asp-controller="Account" asp-action="Register">Đăng ký</a>
+        }
+    </div>
+    <div class="mobile-nav-overlay" onclick="document.getElementById('mobile-nav').classList.remove('open')"></div>
+
+    <!-- Search overlay -->
+    <div class="search-overlay" id="search-overlay">
+        <button class="search-close" onclick="document.getElementById('search-overlay').classList.remove('open')">✕</button>
+        <div class="search-inner">
+            <div class="search-eyebrow">Tìm kiếm</div>
+            <input type="text" class="search-input" placeholder="Nhập tên sản phẩm, danh mục..." autofocus />
+            <div class="search-hints">
+                <span>Gợi ý:</span>
+                <a href="#">Áo linen</a>
+                <a href="#">Váy midi</a>
+                <a href="#">Áo khoác wool</a>
+                <a href="#">Quần wide-leg</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TempData flash messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="flash-msg flash-success">✅ @TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="flash-msg flash-error">❌ @TempData["Error"]</div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="flash-msg flash-warning">⚠️ @TempData["Warning"]</div>
+    }
+
+    <!-- ════════════════════════════════════════
+         PAGE CONTENT
+    ════════════════════════════════════════ -->
+    <main id="page-content">
+        @RenderBody()
+    </main>
+
+    <!-- ════════════════════════════════════════
+         FOOTER
+    ════════════════════════════════════════ -->
+    <footer>
+        <div class="footer-grid">
+
+            <div class="footer-brand-col">
+                <a asp-controller="Home" asp-action="Index" class="logo footer-logo">MAISON<span>.</span></a>
+                <p class="footer-desc">
+                    Thời trang không chỉ là quần áo — đó là hành trình khám phá bản thân.
+                    Chúng tôi tạo ra những thiết kế giúp bạn tự tin mỗi ngày.
+                </p>
+                <div class="footer-social">
+                    <a href="#" class="social-btn" title="Facebook">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    </a>
+                    <a href="#" class="social-btn" title="Instagram">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                    </a>
+                    <a href="#" class="social-btn" title="Youtube">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.54C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+                    </a>
+                    <a href="#" class="social-btn" title="TikTok">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>Mua Sắm</h4>
+                <ul class="footer-links">
+                    <li><a asp-controller="Product" asp-action="Women">Thời Trang Nữ</a></li>
+                    <li><a asp-controller="Product" asp-action="Men">Thời Trang Nam</a></li>
+                    <li><a asp-controller="Product" asp-action="Kids">Trẻ Em</a></li>
+                    <li><a asp-controller="Product" asp-action="Index">Phụ Kiện</a></li>
+                    <li><a asp-controller="Product" asp-action="Sale">Sale & Khuyến Mãi</a></li>
+                    <li><a asp-controller="Home"    asp-action="Lookbook">Lookbook</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Hỗ Trợ</h4>
+                <ul class="footer-links">
+                    <li><a asp-controller="Order" asp-action="Track">Theo Dõi Đơn Hàng</a></li>
+                    <li><a asp-controller="Home"  asp-action="SizeGuide">Hướng Dẫn Chọn Size</a></li>
+                    <li><a asp-controller="Home"  asp-action="ReturnPolicy">Chính Sách Đổi Trả</a></li>
+                    <li><a asp-controller="Home"  asp-action="Payment">Phương Thức Thanh Toán</a></li>
+                    <li><a asp-controller="Home"  asp-action="FAQ">Câu Hỏi Thường Gặp</a></li>
+                    <li><a asp-controller="Home"  asp-action="Contact">Liên Hệ</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Thông Tin</h4>
+                <ul class="footer-links">
+                    <li><a asp-controller="Home" asp-action="About">Về MAISON</a></li>
+                    <li><a asp-controller="Home" asp-action="Sustainability">Cam Kết Bền Vững</a></li>
+                    <li><a asp-controller="Home" asp-action="Careers">Tuyển Dụng</a></li>
+                    <li><a asp-controller="Home" asp-action="Terms">Điều Khoản Dịch Vụ</a></li>
+                    <li><a asp-controller="Home" asp-action="Privacy">Chính Sách Bảo Mật</a></li>
+                </ul>
+                <div class="footer-hotline">
+                    <div class="footer-hotline-label">Hotline</div>
+                    <div class="footer-hotline-number">1800 9999</div>
+                    <div class="footer-hotline-hours">8:00 – 22:00 mỗi ngày</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <div class="footer-copy">© 2026 NGỘ Store. Bảo lưu mọi quyền.</div>
+            <div class="payment-icons">
+                <div class="payment-icon">VISA</div>
+                <div class="payment-icon">MC</div>
+                <div class="payment-icon">MOMO</div>
+                <div class="payment-icon">VNPAY</div>
+                <div class="payment-icon">ZaloPay</div>
+                <div class="payment-icon">COD</div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Lên đầu trang">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="stroke-width:2">
+            <path d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/mainson.js" asp-append-version="true"></script>
+
+    <script>
+    // Hàm update cart badge từ AJAX (dùng bởi Detail page)
+    function updateCartBadge(count) {
+        const badge = document.getElementById('cart-badge-count');
+        if (!badge) return;
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

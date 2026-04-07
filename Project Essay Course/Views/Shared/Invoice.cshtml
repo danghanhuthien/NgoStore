@@ -1,0 +1,419 @@
+@model Project_Essay_Course.Models.Order
+@{
+    Layout = null; // Không dùng layout — trang độc lập để in
+    ViewData["Title"] = "Hóa Đơn " + Model.OrderCode;
+    var invoiceDate = Model.PaidAt ?? Model.CreatedAt;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hóa Đơn @Model.OrderCode – MAISON</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --black:   #0a0a0a;
+            --white:   #fafaf8;
+            --cream:   #f5f0e8;
+            --accent:  #b8860b;
+            --gray:    #888;
+            --border:  #e5e5e5;
+            --serif:   'Cormorant Garamond', Georgia, serif;
+            --sans:    'DM Sans', system-ui, sans-serif;
+        }
+
+        body {
+            font-family: var(--sans);
+            font-size: 13px;
+            color: var(--black);
+            background: #fff;
+            padding: 0;
+            margin: 0;
+        }
+
+        .invoice-wrap {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 48px 56px;
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        .inv-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid var(--black);
+        }
+        .inv-logo {
+            font-family: var(--serif);
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            color: var(--black);
+        }
+        .inv-logo span { color: var(--accent); }
+        .inv-logo-sub {
+            font-size: 10px;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+
+        .inv-meta { text-align: right; }
+        .inv-title {
+            font-family: var(--serif);
+            font-size: 22px;
+            font-weight: 300;
+            color: var(--black);
+            letter-spacing: .04em;
+        }
+        .inv-code {
+            font-size: 12px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-top: 4px;
+        }
+        .inv-date {
+            font-size: 11px;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+
+        /* ── Info grid ── */
+        .inv-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .inv-info-box {}
+        .inv-info-title {
+            font-size: 9px;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+        .inv-info-row {
+            display: flex;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .inv-info-row:last-child { border-bottom: none; }
+        .inv-info-label { color: var(--gray); min-width: 90px; flex-shrink: 0; }
+        .inv-info-value { font-weight: 500; }
+
+        /* ── Status badges ── */
+        .badge {
+            display: inline-block;
+            font-size: 9px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            font-weight: 500;
+        }
+        .badge-paid   { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .badge-unpaid { background: #fef2f2; color: #c0392b; border: 1px solid #fecaca; }
+
+        /* ── Items table ── */
+        .inv-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+        .inv-table thead th {
+            font-size: 9px;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--gray);
+            font-weight: 400;
+            padding: 8px 10px;
+            border-bottom: 2px solid var(--black);
+            text-align: left;
+        }
+        .inv-table thead th:last-child,
+        .inv-table thead th:nth-child(3),
+        .inv-table thead th:nth-child(4) { text-align: right; }
+
+        .inv-table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        .inv-table tbody tr:last-child { border-bottom: 2px solid var(--black); }
+        .inv-table tbody td {
+            padding: 10px 10px;
+            font-size: 12px;
+            vertical-align: top;
+        }
+        .inv-table tbody td:nth-child(3),
+        .inv-table tbody td:nth-child(4),
+        .inv-table tbody td:nth-child(5) { text-align: right; }
+
+        .item-name { font-weight: 500; }
+        .item-variant {
+            display: inline-block;
+            font-size: 10px;
+            color: var(--gray);
+            background: var(--cream);
+            padding: 1px 6px;
+            margin: 3px 2px 0 0;
+            border: 1px solid var(--border);
+        }
+        .item-sku { font-size: 10px; color: #bbb; font-family: monospace; margin-top: 2px; }
+
+        /* ── Totals ── */
+        .inv-totals {
+            margin-left: auto;
+            width: 260px;
+        }
+        .inv-total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .inv-total-row:last-child {
+            border-bottom: none;
+            border-top: 2px solid var(--black);
+            margin-top: 6px;
+            padding-top: 10px;
+            font-family: var(--serif);
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .inv-total-label { color: var(--gray); }
+        .inv-total-label-bold { font-weight: 500; color: var(--black); }
+
+        /* ── Notes ── */
+        .inv-note {
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+        .inv-note strong { color: var(--black); }
+
+        /* ── Footer ── */
+        .inv-footer {
+            margin-top: 40px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #bbb;
+            letter-spacing: .06em;
+        }
+
+        /* ── Print button (ẩn khi in) ── */
+        .print-actions {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 999;
+        }
+        .btn-print {
+            padding: 8px 20px;
+            background: #0a0a0a;
+            color: #fff;
+            border: none;
+            font-family: var(--sans);
+            font-size: 12px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-close {
+            padding: 8px 16px;
+            background: none;
+            color: #888;
+            border: 1px solid #ddd;
+            font-family: var(--sans);
+            font-size: 12px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* ── Print media ── */
+        @@media print {
+            .print-actions { display: none !important; }
+            .invoice-wrap  { padding: 20px 28px; }
+            body { background: #fff; }
+            @@page { margin: 10mm; size: A4; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="print-actions">
+        <button class="btn-print" onclick="window.print()">🖨 In hóa đơn</button>
+        <a href="javascript:window.close()" class="btn-close">Đóng</a>
+    </div>
+
+    <div class="invoice-wrap">
+
+        <div class="inv-header">
+            <div>
+                <div class="inv-logo">MAISON<span>.</span></div>
+                <div class="inv-logo-sub">Fashion Store</div>
+            </div>
+            <div class="inv-meta">
+                <div class="inv-title">Hóa Đơn Mua Hàng</div>
+                <div class="inv-code">#@Model.OrderCode</div>
+                <div class="inv-date">Ngày: @invoiceDate.ToLocalTime().ToString("dd/MM/yyyy")</div>
+            </div>
+        </div>
+        <div class="inv-info">
+            <div class="inv-info-box">
+                <div class="inv-info-title">Thông Tin Khách Hàng</div>
+                <div class="inv-info-row">
+                    <span class="inv-info-label">Họ tên</span>
+                    <span class="inv-info-value">@Model.FullName</span>
+                </div>
+                <div class="inv-info-row">
+                    <span class="inv-info-label">Điện thoại</span>
+                    <span class="inv-info-value">@Model.Phone</span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Email))
+                {
+                    <div class="inv-info-row">
+                        <span class="inv-info-label">Email</span>
+                        <span class="inv-info-value">@Model.Email</span>
+                    </div>
+                }
+                <div class="inv-info-row">
+                    <span class="inv-info-label">Địa chỉ</span>
+                    <span class="inv-info-value">@Model.Address, @Model.Ward, @Model.District, @Model.Province</span>
+                </div>
+            </div>
+
+            <div class="inv-info-box">
+                <div class="inv-info-title">Thông Tin Đơn Hàng</div>
+                <div class="inv-info-row">
+                    <span class="inv-info-label">Mã đơn</span>
+                    <span class="inv-info-value">@Model.OrderCode</span>
+                </div>
+                <div class="inv-info-row">
+                    <span class="inv-info-label">Ngày đặt</span>
+                    <span class="inv-info-value">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                <div class="inv-info-row">
+                    <span class="inv-info-label">Trạng thái</span>
+                    <span class="inv-info-value">@Model.StatusDisplay</span>
+                </div>
+                <div class="inv-info-row">
+                    <span class="inv-info-label">Thanh toán</span>
+                    <span class="inv-info-value">
+                        @Model.PaymentMethodDisplay —
+                        @if (Model.PaymentStatus == Project_Essay_Course.Models.PaymentStatus.Paid)
+                        { <span class="badge badge-paid">Đã TT</span> }
+                        else
+                        { <span class="badge badge-unpaid">Chưa TT</span> }
+                    </span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Note))
+                {
+                    <div class="inv-info-row">
+                        <span class="inv-info-label">Ghi chú</span>
+                        <span class="inv-info-value">@Model.Note</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <table class="inv-table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Phân loại</th>
+                    <th>Đơn giá</th>
+                    <th>SL</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td>
+                            <div class="item-name">@item.ProductName</div>
+                            @if (!string.IsNullOrEmpty(item.SKU))
+                            { <div class="item-sku">SKU: @item.SKU</div> }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.VariantDisplay))
+                            {
+                                @foreach (var part in item.VariantDisplay.Split(" / "))
+                                {
+                                    <span class="item-variant">@part.Trim()</span>
+                                }
+                            }
+                            else
+                            {
+                                <span style="color:#ccc;font-size:11px">—</span>
+                            }
+                        </td>
+                        <td>@item.UnitPrice.ToString("N0")₫</td>
+                        <td>@item.Quantity</td>
+                        <td style="font-weight:500">@item.SubTotal.ToString("N0")₫</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="inv-totals">
+            <div class="inv-total-row">
+                <span class="inv-total-label">Tạm tính</span>
+                <span>@Model.SubTotal.ToString("N0")₫</span>
+            </div>
+            <div class="inv-total-row">
+                <span class="inv-total-label">Phí vận chuyển</span>
+                <span>@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("N0") + "₫")</span>
+            </div>
+            <div class="inv-total-row">
+                <span class="inv-total-label-bold">Tổng cộng</span>
+                <span>@Model.TotalAmount.ToString("N0")₫</span>
+            </div>
+        </div>
+
+        <div class="inv-note">
+            <strong>Lưu ý:</strong> Hóa đơn này được xuất tự động từ hệ thống MAISON Fashion.
+            Nếu có thắc mắc, vui lòng liên hệ hotline <strong>1800 9999</strong>
+            hoặc email <strong>support@maison.vn</strong>.
+            Cảm ơn quý khách đã tin tưởng mua sắm tại MAISON!
+        </div>
+
+        <div class="inv-footer">
+            <span>MAISON Fashion — maison.vn</span>
+            <span>Hóa đơn #@Model.OrderCode — @DateTime.Now.ToString("dd/MM/yyyy")</span>
+        </div>
+
+    </div>
+
+    <script>
+    // Tự động mở print dialog sau khi trang load
+    // Bỏ comment dòng dưới nếu muốn tự động in
+    // window.addEventListener('load', () => setTimeout(() => window.print(), 500));
+    </script>
+
+</body>
+</html>

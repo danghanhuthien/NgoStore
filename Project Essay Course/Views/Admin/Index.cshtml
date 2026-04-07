@@ -1,0 +1,301 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Styles {
+<style>
+/* ── Stats grid ── */
+.dash-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.dash-stat {
+    background: #fff;
+    border: 1px solid var(--adm-border, #e8e8e6);
+    padding: 1.4rem 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    transition: box-shadow .2s;
+}
+.dash-stat:hover { box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+.stat-icon-wrap {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.stat-icon-wrap svg { width: 22px; height: 22px; stroke-width: 1.4; }
+.stat-icon-products  { background: #f0f9ff; color: #0369a1; }
+.stat-icon-active    { background: #f0fdf4; color: #15803d; }
+.stat-icon-outstock  { background: #fff7ed; color: #c2410c; }
+.stat-icon-categories{ background: #fdf4ff; color: #7e22ce; }
+
+.stat-num   { font-family: var(--serif); font-size: 1.8rem; font-weight: 600; line-height: 1; color: var(--black); }
+.stat-label { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: #999; margin-top: .2rem; }
+
+/* ── Page title ── */
+.dash-page-header { margin-bottom: 2rem; }
+.dash-eyebrow { font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; color: #b8860b; margin-bottom: .4rem; }
+.dash-title   { font-family: var(--serif); font-size: clamp(1.5rem,2.5vw,2rem); font-weight: 300; }
+.dash-title em { font-style: italic; }
+.dash-subtitle { font-size: .82rem; color: #999; margin-top: .3rem; }
+
+/* ── Two column ── */
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+/* ── Cards ── */
+.dash-card { background: #fff; border: 1px solid #e8e8e6; }
+.dash-card-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 1.6rem;
+    border-bottom: 1px solid #e8e8e6;
+}
+.dash-card-title {
+    font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+    color: #b8860b;
+}
+.dash-card-link {
+    font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+    color: #999; text-decoration: none; border-bottom: 1px solid #e8e8e6;
+    transition: color .2s, border-color .2s;
+}
+.dash-card-link:hover { color: var(--black); border-color: var(--black); }
+
+/* Product rows */
+.dash-product-row {
+    display: flex; align-items: center; gap: 1rem;
+    padding: .9rem 1.6rem;
+    border-bottom: 1px solid rgba(232,232,230,.5);
+    transition: background .15s;
+}
+.dash-product-row:last-child { border-bottom: none; }
+.dash-product-row:hover { background: #fafaf8; }
+.dash-product-thumb {
+    width: 40px; height: 52px;
+    object-fit: cover; flex-shrink: 0;
+    background: #f5f0e8;
+}
+.dash-product-thumb-ph {
+    width: 40px; height: 52px; flex-shrink: 0;
+    background: #f5f0e8;
+    display: flex; align-items: center; justify-content: center;
+}
+.dash-product-thumb-ph svg { width: 16px; height: 16px; color: #c8bfb0; stroke-width: 1; }
+.dash-product-name {
+    flex: 1; min-width: 0;
+    font-size: .85rem; color: var(--black);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dash-product-name a { text-decoration: none; color: inherit; }
+.dash-product-name a:hover { color: #b8860b; }
+.dash-product-meta { font-size: .72rem; color: #bbb; margin-top: .15rem; }
+.dash-product-price { font-size: .82rem; font-weight: 500; white-space: nowrap; }
+.dash-product-price .sale { color: #c0392b; }
+
+/* Stock indicator */
+.stock-bar-wrap { display: flex; align-items: center; gap: .5rem; }
+.stock-val { font-size: .78rem; font-weight: 500; white-space: nowrap; }
+.stock-val.low { color: #f59e0b; }
+.stock-val.critical { color: #c0392b; }
+.stock-bar-bg { width: 48px; height: 4px; background: #f0f0f0; border-radius: 2px; flex-shrink: 0; }
+.stock-bar-fill { height: 100%; border-radius: 2px; }
+.fill-low      { background: #f59e0b; }
+.fill-critical { background: #c0392b; }
+
+/* Quick actions */
+.dash-quick-actions {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: .8rem; padding: 1.2rem 1.6rem;
+}
+.quick-action-btn {
+    display: flex; align-items: center; gap: .7rem;
+    padding: .9rem 1rem;
+    border: 1px solid #e8e8e6; background: none;
+    font-family: var(--sans); font-size: .78rem;
+    color: var(--charcoal); text-decoration: none;
+    transition: all .2s; cursor: pointer;
+}
+.quick-action-btn:hover { border-color: var(--black); color: var(--black); background: #fafaf8; }
+.quick-action-btn svg { width: 16px; height: 16px; stroke-width: 1.5; color: #b8860b; flex-shrink: 0; }
+
+@@media (max-width: 1200px) { .dash-stats { grid-template-columns: repeat(2, 1fr); } }
+@@media (max-width: 900px)  { .dash-grid  { grid-template-columns: 1fr; } }
+@@media (max-width: 600px)  { .dash-stats { grid-template-columns: 1fr 1fr; } }
+</style>
+}
+
+<div class="dash-page-header">
+    <div class="dash-eyebrow">Tổng Quan</div>
+    <h1 class="dash-title">Xin chào, <em>@User.Identity?.Name</em> 👋</h1>
+    <div class="dash-subtitle">@DateTime.Now.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))</div>
+</div>
+
+<div class="dash-stats">
+    <div class="dash-stat">
+        <div class="stat-icon-wrap stat-icon-products">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            </svg>
+        </div>
+        <div>
+            <div class="stat-num">@ViewBag.TotalProducts</div>
+            <div class="stat-label">Tổng sản phẩm</div>
+        </div>
+    </div>
+    <div class="dash-stat">
+        <div class="stat-icon-wrap stat-icon-active">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+        </div>
+        <div>
+            <div class="stat-num">@ViewBag.ActiveProducts</div>
+            <div class="stat-label">Đang bán</div>
+        </div>
+    </div>
+    <div class="dash-stat">
+        <div class="stat-icon-wrap stat-icon-outstock">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8"  x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <div>
+            <div class="stat-num">@ViewBag.OutOfStock</div>
+            <div class="stat-label">Hết hàng</div>
+        </div>
+    </div>
+    <div class="dash-stat">
+        <div class="stat-icon-wrap stat-icon-categories">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+        </div>
+        <div>
+            <div class="stat-num">@ViewBag.TotalCategories</div>
+            <div class="stat-label">Danh mục</div>
+        </div>
+    </div>
+</div>
+
+<div class="dash-grid">
+
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <div class="dash-card-title">Sản Phẩm Mới Nhất</div>
+            <a asp-controller="Product" asp-action="Manage" class="dash-card-link">Xem tất cả</a>
+        </div>
+        @if (ViewBag.LatestProducts is List<Project_Essay_Course.Models.Product> latest && latest.Any())
+        {
+            @foreach (var p in latest)
+            {
+                <div class="dash-product-row">
+                    @{ var img = p.Images.FirstOrDefault(i => i.IsMain) ?? p.Images.FirstOrDefault(); }
+                    @if (img != null)
+                    {
+                        <img class="dash-product-thumb" src="@img.ImagePath" alt="@p.Name" />
+                    }
+                    else
+                    {
+                        <div class="dash-product-thumb-ph">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                        </div>
+                    }
+                    <div style="flex:1;min-width:0">
+                        <div class="dash-product-name">
+                            <a asp-controller="Product" asp-action="AdminDetail" asp-route-id="@p.ProductId">@p.Name</a>
+                        </div>
+                        <div class="dash-product-meta">@p.Category?.Name · @p.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</div>
+                    </div>
+                    <div class="dash-product-price">
+                        @if (p.SalePrice.HasValue && p.SalePrice < p.BasePrice)
+                        {
+                            <span class="sale">@p.SalePrice.Value.ToString("N0")₫</span>
+                        }
+                        else
+                        {
+                            @p.BasePrice.ToString("N0")
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="padding:2rem;text-align:center;color:#bbb;font-size:.85rem">Chưa có sản phẩm nào</div>
+        }
+    </div>
+
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <div class="dash-card-title">⚠ Sắp Hết Hàng</div>
+            <a asp-controller="Product" asp-action="Manage" class="dash-card-link">Quản lý kho</a>
+        </div>
+        @if (ViewBag.LowStockProducts is List<Project_Essay_Course.Models.Product> lowStock && lowStock.Any())
+        {
+            @foreach (var p in lowStock)
+            {
+                <div class="dash-product-row">
+                    @{ var img2 = p.Images.FirstOrDefault(i => i.IsMain) ?? p.Images.FirstOrDefault(); }
+                    @if (img2 != null)
+                    {
+                        <img class="dash-product-thumb" src="@img2.ImagePath" alt="@p.Name" />
+                    }
+                    else
+                    {
+                        <div class="dash-product-thumb-ph">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                        </div>
+                    }
+                    <div style="flex:1;min-width:0">
+                        <div class="dash-product-name">
+                            <a asp-controller="Product" asp-action="AdminDetail" asp-route-id="@p.ProductId">@p.Name</a>
+                        </div>
+                    </div>
+                    <div class="stock-bar-wrap">
+                        <span class="stock-val @(p.TotalStock <= 2 ? "critical" : "low")">@p.TotalStock còn</span>
+                        <div class="stock-bar-bg">
+                            <div class="stock-bar-fill @(p.TotalStock <= 2 ? "fill-critical" : "fill-low")"
+                                 style="width:@(Math.Min(p.TotalStock * 20, 100))%"></div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="padding:2rem;text-align:center;color:#16a34a;font-size:.85rem">
+                ✓ Tất cả sản phẩm đều còn hàng
+            </div>
+        }
+    </div>
+
+    <div class="dash-card" style="grid-column: 1 / -1">
+        <div class="dash-card-header">
+            <div class="dash-card-title">Thao Tác Nhanh</div>
+        </div>
+        <div class="dash-quick-actions">
+            <a asp-controller="Product"  asp-action="Create"  class="quick-action-btn">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+                Thêm sản phẩm mới
+            </a>
+            <a asp-controller="Category" asp-action="Create"  class="quick-action-btn">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+                Thêm danh mục mới
+            </a>
+            <a asp-controller="Product"  asp-action="Manage"  class="quick-action-btn">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                Quản lý sản phẩm
+            </a>
+            <a asp-controller="Account"  asp-action="Index"   class="quick-action-btn">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Quản lý người dùng
+            </a>
+        </div>
+    </div>
+
+</div>

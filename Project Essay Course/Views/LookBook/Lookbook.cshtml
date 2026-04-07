@@ -1,0 +1,370 @@
+@{
+    ViewData["Title"] = "Lookbook – NGỘ STORE";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+<style>
+/* ── Reset & vars ── */
+.lb-page { overflow-x: hidden; }
+
+/* ── Hero ── */
+.lb-hero {
+    position: relative;
+    height: 92vh;
+    min-height: 580px;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 6vw 5rem;
+    overflow: hidden;
+    background: #0a0a0a;
+}
+
+.lb-hero-bg {
+    position: absolute; inset: 0;
+    background:
+        linear-gradient(160deg, transparent 40%, rgba(10,10,10,.85) 100%),
+        url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&q=80') center/cover no-repeat;
+    transform: scale(1.04);
+    transition: transform 8s ease;
+}
+.lb-hero:hover .lb-hero-bg { transform: scale(1); }
+
+.lb-hero-content { position: relative; z-index: 2; max-width: 640px; }
+.lb-hero-season {
+    font-size: .68rem; letter-spacing: .32em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: .8rem;
+}
+.lb-hero-season::before {
+    content: ''; display: block; width: 32px; height: 1px; background: var(--accent);
+}
+.lb-hero-title {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 300; line-height: 1.05;
+    color: var(--white); margin-bottom: 1.2rem;
+}
+.lb-hero-title em { font-style: italic; color: var(--accent); }
+.lb-hero-sub {
+    font-size: .9rem; color: rgba(255,255,255,.55);
+    line-height: 1.7; max-width: 380px; margin-bottom: 2rem;
+}
+.lb-hero-scroll {
+    display: inline-flex; align-items: center; gap: .7rem;
+    font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+    color: rgba(255,255,255,.4);
+    animation: lb-bounce 2s ease-in-out infinite;
+}
+.lb-hero-scroll svg { width: 16px; height: 16px; stroke-width: 1.5; }
+@@keyframes lb-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(6px); }
+}
+
+/* ── Section header ── */
+.lb-section { padding: 6rem 6vw; }
+.lb-section-header { margin-bottom: 3.5rem; }
+.lb-eyebrow {
+    font-size: .65rem; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: .6rem;
+}
+.lb-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 300; line-height: 1.15;
+    color: var(--black);
+}
+.lb-title em { font-style: italic; }
+
+/* ── Editorial grid — Section 1 ── */
+.lb-grid-1 {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 1rem;
+}
+.lb-card { position: relative; overflow: hidden; background: var(--cream); cursor: pointer; }
+.lb-card img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .75s cubic-bezier(.25,.46,.45,.94);
+    display: block;
+}
+.lb-card:hover img { transform: scale(1.06); }
+
+.lb-card-tall  { aspect-ratio: 3/4; grid-row: span 2; }
+.lb-card-wide  { aspect-ratio: 16/9; }
+.lb-card-sq    { aspect-ratio: 1/1; }
+
+.lb-card-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 1.8rem 1.4rem 1.2rem;
+    background: linear-gradient(transparent, rgba(10,10,10,.7));
+    transform: translateY(100%); transition: transform .35s ease;
+}
+.lb-card:hover .lb-card-label { transform: translateY(0); }
+.lb-card-cat { font-size: .6rem; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: .25rem; }
+.lb-card-name { font-family: var(--serif); font-size: 1.1rem; color: var(--white); font-weight: 300; }
+
+/* ── Feature row ── */
+.lb-feature {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: #0a0a0a;
+    margin: 0 0 1rem;
+}
+.lb-feature-img {
+    aspect-ratio: 4/5;
+    overflow: hidden;
+    position: relative;
+}
+.lb-feature-img img { width: 100%; height: 100%; object-fit: cover; opacity: .85; transition: opacity .4s, transform .75s; }
+.lb-feature:hover .lb-feature-img img { opacity: 1; transform: scale(1.03); }
+
+.lb-feature-text {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 4rem 5vw;
+    background: #0a0a0a;
+}
+.lb-feature-tag {
+    font-size: .6rem; letter-spacing: .28em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.4rem;
+    display: flex; align-items: center; gap: .7rem;
+}
+.lb-feature-tag::before { content: ''; display: block; width: 24px; height: 1px; background: var(--accent); }
+.lb-feature-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    font-weight: 300; line-height: 1.25;
+    color: var(--white); margin-bottom: 1.6rem;
+}
+.lb-feature-quote em { font-style: italic; color: var(--accent); }
+.lb-feature-body { font-size: .85rem; color: rgba(255,255,255,.45); line-height: 1.8; max-width: 360px; }
+
+/* ── Masonry grid — Section 2 ── */
+.lb-masonry {
+    columns: 3;
+    column-gap: 1rem;
+}
+.lb-masonry-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    position: relative;
+    background: var(--cream);
+    cursor: pointer;
+}
+.lb-masonry-item img { width: 100%; display: block; transition: transform .7s cubic-bezier(.25,.46,.45,.94); }
+.lb-masonry-item:hover img { transform: scale(1.05); }
+
+.lb-masonry-item:nth-child(1) { aspect-ratio: 3/4; }
+.lb-masonry-item:nth-child(2) { aspect-ratio: 1/1; }
+.lb-masonry-item:nth-child(3) { aspect-ratio: 2/3; }
+.lb-masonry-item:nth-child(4) { aspect-ratio: 4/5; }
+.lb-masonry-item:nth-child(5) { aspect-ratio: 3/2; }
+.lb-masonry-item:nth-child(6) { aspect-ratio: 3/4; }
+
+/* ── Flat lay strip ── */
+.lb-flatlay {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 0 6vw 6rem;
+}
+.lb-fl-item {
+    background: var(--cream);
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+}
+.lb-fl-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .65s cubic-bezier(.25,.46,.45,.94); }
+.lb-fl-item:hover img { transform: scale(1.08); }
+.lb-fl-overlay {
+    position: absolute; inset: 0;
+    background: rgba(10,10,10,.0);
+    display: flex; align-items: center; justify-content: center;
+    transition: background .3s;
+}
+.lb-fl-item:hover .lb-fl-overlay { background: rgba(10,10,10,.35); }
+.lb-fl-overlay span {
+    font-size: .65rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--white); opacity: 0; transition: opacity .3s;
+    border-bottom: 1px solid rgba(255,255,255,.5); padding-bottom: .2rem;
+}
+.lb-fl-item:hover .lb-fl-overlay span { opacity: 1; }
+
+/* ── CTA strip ── */
+.lb-cta {
+    background: var(--cream);
+    padding: 5rem 6vw;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 2rem;
+}
+.lb-cta-text {}
+.lb-cta-eyebrow { font-size:.65rem; letter-spacing:.26em; text-transform:uppercase; color:var(--accent); margin-bottom:.5rem; }
+.lb-cta-heading { font-family:var(--serif); font-size:clamp(1.6rem,3vw,2.4rem); font-weight:300; }
+.lb-cta-heading em { font-style:italic; }
+.lb-btn {
+    display: inline-flex; align-items: center; gap: .6rem;
+    padding: .95rem 2.4rem;
+    background: var(--black); color: var(--white);
+    border: 1px solid var(--black);
+    font-family: var(--sans); font-size: .76rem;
+    letter-spacing: .16em; text-transform: uppercase;
+    text-decoration: none; transition: background .25s, color .25s;
+    white-space: nowrap;
+}
+.lb-btn:hover { background: var(--white); color: var(--black); }
+.lb-btn svg { width: 14px; height: 14px; stroke-width: 2; }
+
+/* ── Responsive ── */
+@@media (max-width: 900px) {
+    .lb-grid-1    { grid-template-columns: 1fr 1fr; }
+    .lb-card-tall { grid-row: span 1; aspect-ratio: 3/4; }
+    .lb-feature   { grid-template-columns: 1fr; }
+    .lb-masonry   { columns: 2; }
+    .lb-flatlay   { grid-template-columns: repeat(2, 1fr); }
+}
+@@media (max-width: 600px) {
+    .lb-hero  { padding: 0 1.5rem 3.5rem; }
+    .lb-grid-1 { grid-template-columns: 1fr; }
+    .lb-masonry { columns: 2; }
+    .lb-flatlay { grid-template-columns: repeat(2, 1fr); }
+    .lb-cta   { flex-direction: column; text-align: center; }
+}
+</style>
+}
+
+<div class="lb-page">
+
+    <section class="lb-hero">
+        <div class="lb-hero-bg"></div>
+        <div class="lb-hero-content">
+            <div class="lb-hero-season">Bộ Sưu Tập 2025</div>
+            <h1 class="lb-hero-title">Ngộ <em>Nghĩnh</em><br>Mà Sang.</h1>
+            <p class="lb-hero-sub">
+                Phong cách không cần cầu kỳ — chỉ cần đúng chất.
+                NGỘ STORE mang đến những set đồ tối giản nhưng không bao giờ nhàm chán.
+            </p>
+            <div class="lb-hero-scroll">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                Khám phá bộ sưu tập
+            </div>
+        </div>
+    </section>
+
+    <section class="lb-section">
+        <div class="lb-section-header">
+            <div class="lb-eyebrow">Lookbook — Mùa Này</div>
+            <h2 class="lb-title">Lifestyle <em>Phong Cách</em></h2>
+        </div>
+
+        <div class="lb-grid-1">
+            <div class="lb-card lb-card-tall">
+                <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80" alt="Outfit 1" loading="lazy" />
+                <div class="lb-card-label">
+                    <div class="lb-card-cat">Áo Khoác</div>
+                    <div class="lb-card-name">Oversized Coat</div>
+                </div>
+            </div>
+            <div class="lb-card lb-card-wide">
+                <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80" alt="Outfit 2" loading="lazy" />
+                <div class="lb-card-label">
+                    <div class="lb-card-cat">Áo</div>
+                    <div class="lb-card-name">Cotton Minimal</div>
+                </div>
+            </div>
+            <div class="lb-card lb-card-sq">
+                <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&q=80" alt="Outfit 3" loading="lazy" />
+                <div class="lb-card-label">
+                    <div class="lb-card-cat">Quần</div>
+                    <div class="lb-card-name">Wide Leg Pants</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="lb-feature">
+        <div class="lb-feature-img">
+            <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=900&q=80" alt="Feature" loading="lazy" />
+        </div>
+        <div class="lb-feature-text">
+            <div class="lb-feature-tag">Triết Lý NGỘ STORE</div>
+            <div class="lb-feature-quote">
+                "Mặc <em>ngộ nghĩnh</em>,<br>sống <em>tự tại</em>."
+            </div>
+            <p class="lb-feature-body">
+                Chúng tôi tin rằng phong cách không cần phải phức tạp.
+                Một chiếc áo đúng fit, một màu sắc đúng mood —
+                đó là tất cả những gì bạn cần để tỏa sáng mỗi ngày.
+            </p>
+        </div>
+    </div>
+
+    <section class="lb-section">
+        <div class="lb-section-header">
+            <div class="lb-eyebrow">Street Style</div>
+            <h2 class="lb-title">Sống <em>Đúng Chất</em></h2>
+        </div>
+
+        <div class="lb-masonry">
+            <div class="lb-masonry-item">
+                <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80" alt="" loading="lazy" />
+            </div>
+            <div class="lb-masonry-item">
+                <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80" alt="" loading="lazy" />
+            </div>
+            <div class="lb-masonry-item">
+                <img src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=600&q=80" alt="" loading="lazy" />
+            </div>
+            <div class="lb-masonry-item">
+                <img src="https://images.unsplash.com/photo-1564257631407-4deb1f99d992?w=600&q=80" alt="" loading="lazy" />
+            </div>
+            <div class="lb-masonry-item">
+                <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&q=80" alt="" loading="lazy" />
+            </div>
+            <div class="lb-masonry-item">
+                <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&q=80" alt="" loading="lazy" />
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div style="padding:0 6vw 2rem">
+            <div class="lb-eyebrow">Flat Lay</div>
+            <h2 class="lb-title">Chi Tiết <em>Sản Phẩm</em></h2>
+        </div>
+        <div class="lb-flatlay">
+            <div class="lb-fl-item">
+                <img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=600&q=80" alt="" loading="lazy" />
+                <div class="lb-fl-overlay"><span>Xem sản phẩm</span></div>
+            </div>
+            <div class="lb-fl-item">
+                <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&q=80" alt="" loading="lazy" />
+                <div class="lb-fl-overlay"><span>Xem sản phẩm</span></div>
+            </div>
+            <div class="lb-fl-item">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="" loading="lazy" />
+                <div class="lb-fl-overlay"><span>Xem sản phẩm</span></div>
+            </div>
+            <div class="lb-fl-item">
+                <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80" alt="" loading="lazy" />
+                <div class="lb-fl-overlay"><span>Xem sản phẩm</span></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="lb-cta">
+        <div class="lb-cta-text">
+            <div class="lb-cta-eyebrow">NGỘ STORE</div>
+            <h2 class="lb-cta-heading">Tìm Set Đồ <em>Của Bạn</em></h2>
+        </div>
+        <a asp-controller="Product" asp-action="Index" class="lb-btn">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Khám Phá Sản Phẩm
+        </a>
+    </div>
+
+</div>

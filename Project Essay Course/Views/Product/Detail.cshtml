@@ -1,0 +1,447 @@
+@model Project_Essay_Course.ViewModels.Product_ViewModel.ProductDetailViewModel
+@{
+    ViewData["Title"] = Model.Product.Name;
+    var p = Model.Product;
+}
+
+@section Styles {
+<style>
+.detail-page {
+    max-width: 1300px;
+    margin: 2.5rem auto;
+    padding: 0 2.5rem;
+}
+.breadcrumb { display:flex; align-items:center; gap:.5rem; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:#999; margin-bottom:2.5rem; }
+.breadcrumb a { color:#999; text-decoration:none; transition:color .2s; }
+.breadcrumb a:hover { color:var(--black); }
+.breadcrumb svg { width:11px; height:11px; stroke-width:2; }
+.detail-layout { display:grid; grid-template-columns:1fr 1fr; gap:5rem; margin-bottom:5rem; }
+.gallery {}
+.gallery-main { aspect-ratio:3/4; overflow:hidden; background:var(--cream); margin-bottom:.8rem; position:relative; }
+.gallery-main img { width:100%; height:100%; object-fit:cover; transition:opacity .3s; }
+.gallery-thumbs { display:flex; gap:.6rem; overflow-x:auto; scrollbar-width:none; }
+.gallery-thumbs::-webkit-scrollbar { display:none; }
+.gallery-thumb { width:72px; height:90px; flex-shrink:0; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:border-color .2s; background:var(--cream); }
+.gallery-thumb.active { border-color:var(--black); }
+.gallery-thumb img { width:100%; height:100%; object-fit:cover; }
+.gallery-badges { position:absolute; top:1rem; left:1rem; display:flex; flex-direction:column; gap:.4rem; }
+.g-badge { font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; padding:.25rem .7rem; font-weight:500; }
+.g-badge-sale { background:#c0392b; color:var(--white); }
+.g-badge-new  { background:var(--black); color:var(--white); }
+.info-category { font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:.6rem; }
+.info-name { font-family:var(--serif); font-size:clamp(1.8rem,3vw,2.6rem); font-weight:300; line-height:1.15; color:var(--black); margin-bottom:1rem; }
+.info-name em { font-style:italic; }
+.info-price { display:flex; align-items:baseline; gap:1rem; margin-bottom:1.5rem; }
+.price-main     { font-size:1.4rem; font-weight:500; color:var(--black); }
+.price-original { font-size:1rem; color:#bbb; text-decoration:line-through; }
+.price-badge    { font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; padding:.25rem .6rem; background:#fef2f2; color:#c0392b; border:1px solid #fecaca; }
+.info-short-desc { font-size:.9rem; color:var(--charcoal); line-height:1.7; margin-bottom:2rem; padding-bottom:2rem; border-bottom:1px solid var(--light-gray); }
+.info-stock { display:flex; align-items:center; gap:.5rem; font-size:.78rem; margin-bottom:1.8rem; }
+.stock-dot { width:8px; height:8px; border-radius:50%; }
+.stock-in  { background:#16a34a; }
+.stock-out { background:#bbb; }
+.stock-low { background:#f59e0b; }
+.variants-section { margin-bottom:1.8rem; }
+.variants-label { font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--charcoal); margin-bottom:.8rem; display:flex; justify-content:space-between; }
+.variants-label span { color:var(--accent); font-weight:500; }
+.variants-grid { display:flex; flex-wrap:wrap; gap:.5rem; }
+.variant-btn { padding:.55rem 1.1rem; border:1px solid var(--light-gray); background:none; font-family:var(--sans); font-size:.82rem; color:var(--charcoal); cursor:pointer; transition:all .2s; }
+.variant-btn:hover  { border-color:var(--black); color:var(--black); }
+.variant-btn.active { border-color:var(--black); background:var(--black); color:var(--white); }
+.variant-btn.disabled { opacity:.4; cursor:not-allowed; text-decoration:line-through; }
+.qty-section { display:flex; align-items:center; gap:1rem; margin-bottom:1.8rem; }
+.qty-label { font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--charcoal); }
+.qty-input-wrap { display:flex; align-items:center; border:1px solid var(--light-gray); }
+.qty-btn { width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--charcoal); transition:background .2s; }
+.qty-btn:hover { background:var(--cream); }
+.qty-num { width:44px; text-align:center; border:none; border-left:1px solid var(--light-gray); border-right:1px solid var(--light-gray); font-family:var(--sans); font-size:.9rem; padding:.5rem 0; outline:none; background:none; }
+.cta-group { display:flex; gap:.8rem; margin-bottom:1.8rem; }
+.btn-cart { flex:1; padding:1rem; background:var(--black); color:var(--white); border:1px solid var(--black); font-family:var(--sans); font-size:.78rem; font-weight:400; letter-spacing:.16em; text-transform:uppercase; cursor:pointer; transition:background var(--transition), color var(--transition); }
+.btn-cart:hover { background:var(--charcoal); }
+.btn-cart:disabled { opacity:.5; cursor:not-allowed; }
+.btn-wish { padding:1rem 1.2rem; border:1px solid var(--light-gray); background:none; cursor:pointer; display:flex; align-items:center; transition:all .25s; }
+.btn-wish:hover { border-color:var(--black); }
+.btn-wish svg { width:20px; height:20px; stroke-width:1.4; }
+/* Login notice */
+.login-notice { padding:.8rem 1rem; background:#fffbeb; border:1px solid #fde68a; border-left:3px solid #f59e0b; font-size:.8rem; color:#92400e; margin-bottom:1.2rem; display:flex; align-items:center; gap:.6rem; }
+.login-notice svg { width:15px; height:15px; stroke-width:1.8; flex-shrink:0; }
+.login-notice a { color:var(--black); font-weight:500; border-bottom:1px solid; text-decoration:none; }
+.usp-row { display:flex; flex-direction:column; gap:.7rem; padding:1.5rem; background:var(--cream); margin-bottom:2rem; }
+.usp-item { display:flex; align-items:center; gap:.8rem; font-size:.8rem; color:var(--charcoal); }
+.usp-item svg { width:16px; height:16px; stroke-width:1.5; flex-shrink:0; color:var(--accent); }
+.accordion { border-top:1px solid var(--light-gray); }
+.accordion-item { border-bottom:1px solid var(--light-gray); }
+.accordion-btn { width:100%; display:flex; justify-content:space-between; align-items:center; padding:1.1rem 0; background:none; border:none; cursor:pointer; font-family:var(--sans); font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--charcoal); text-align:left; }
+.accordion-icon { transition:transform .3s; }
+.accordion-icon.open { transform:rotate(45deg); }
+.accordion-icon svg { width:16px; height:16px; stroke-width:1.8; }
+.accordion-content { font-size:.88rem; color:var(--charcoal); line-height:1.75; max-height:0; overflow:hidden; transition:max-height .35s ease; padding-bottom:0; }
+.accordion-content.open { max-height:500px; padding-bottom:1.2rem; }
+.related-section { margin-top:5rem; }
+.related-header { margin-bottom:2rem; }
+.related-eyebrow { font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:.5rem; }
+.related-title { font-family:var(--serif); font-size:1.8rem; font-weight:300; }
+.related-title em { font-style:italic; }
+.related-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.4rem; }
+.product-card { position:relative; cursor:pointer; }
+.product-image-wrap { position:relative; overflow:hidden; aspect-ratio:3/4; background:var(--cream); margin-bottom:.9rem; }
+.product-image-wrap img { width:100%; height:100%; object-fit:cover; transition:transform .65s cubic-bezier(.25,.46,.45,.94); }
+.product-card:hover .product-image-wrap img { transform:scale(1.07); }
+.product-badge { position:absolute; top:.8rem; left:.8rem; font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; padding:.25rem .6rem; }
+.badge-sale { background:#c0392b; color:var(--white); }
+.badge-new  { background:var(--black); color:var(--white); }
+.product-brand { font-size:.65rem; letter-spacing:.14em; text-transform:uppercase; color:#999; margin-bottom:.25rem; }
+.product-name  { font-family:var(--serif); font-size:1rem; margin-bottom:.45rem; }
+.product-name a { text-decoration:none; color:inherit; }
+.product-name a:hover { color:var(--accent); }
+.product-price { display:flex; gap:.7rem; align-items:center; }
+.price-current  { font-size:.88rem; font-weight:500; }
+.price-original2 { font-size:.78rem; color:#bbb; text-decoration:line-through; }
+@@media (max-width:900px) { .detail-layout { grid-template-columns:1fr; gap:2rem; } .related-grid { grid-template-columns:repeat(2,1fr); } }
+@@media (max-width:600px) { .detail-page { padding:0 1rem; } .cta-group { flex-direction:column; } }
+</style>
+}
+
+<div class="detail-page">
+
+    <div class="breadcrumb">
+        <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+        <a asp-action="Index">Sản phẩm</a>
+        @if (p.Category != null)
+        {
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+            <a asp-action="Index" asp-route-categoryId="@p.CategoryId">@p.Category.Name</a>
+        }
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+        <span style="color:var(--black)">@p.Name</span>
+    </div>
+
+    <div class="detail-layout">
+
+        <div class="gallery">
+            <div class="gallery-main" id="main-img-wrap">
+                @if (p.Images.Any())
+                {
+                    <img id="main-img" src="@p.Images.First().ImagePath" alt="@p.Name" />
+                }
+                else
+                {
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:60px;height:60px;color:var(--stone);stroke-width:.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    </div>
+                }
+                <div class="gallery-badges">
+                    @if (p.DiscountPercent.HasValue) { <span class="g-badge g-badge-sale">-@p.DiscountPercent%</span> }
+                    @if ((DateTime.UtcNow - p.CreatedAt).TotalDays <= 14) { <span class="g-badge g-badge-new">Mới</span> }
+                </div>
+            </div>
+            @if (p.Images.Count > 1)
+            {
+                <div class="gallery-thumbs">
+                    @for (int i = 0; i < p.Images.Count; i++)
+                    {
+                        var img = p.Images.ElementAt(i);
+                        <div class="gallery-thumb @(i == 0 ? "active" : "")" onclick="switchImage('@img.ImagePath', this)">
+                            <img src="@img.ImagePath" alt="@img.AltText" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="product-info">
+
+            <div class="info-category">@p.Category?.Name</div>
+            <h1 class="info-name">@p.Name</h1>
+
+            <div class="info-price">
+                <span class="price-main">@p.DisplayPrice.ToString("N0")₫</span>
+                @if (p.SalePrice.HasValue && p.SalePrice < p.BasePrice && !p.AllVariantsHavePriceOverride)
+                {
+                    <span class="price-original">@p.BasePrice.ToString("N0")₫</span>
+                    <span class="price-badge">Giảm @p.DiscountPercent%</span>
+                }
+            </div>
+
+            @if (!string.IsNullOrEmpty(p.ShortDesc))
+            {
+                <div class="info-short-desc">@p.ShortDesc</div>
+            }
+
+            <div class="info-stock">
+                @if (p.TotalStock > 10) { <div class="stock-dot stock-in"></div><span>Còn hàng (@p.TotalStock sản phẩm)</span> }
+                else if (p.TotalStock > 0) { <div class="stock-dot stock-low"></div><span>Sắp hết hàng (còn @p.TotalStock)</span> }
+                else { <div class="stock-dot stock-out"></div><span style="color:#999">Hết hàng</span> }
+            </div>
+
+            @{
+                var baseDisplayPrice = (p.SalePrice.HasValue && p.SalePrice < p.BasePrice) ? p.SalePrice.Value : p.BasePrice;
+                var variantJson = System.Text.Json.JsonSerializer.Serialize(
+                    p.Variants.Where(v => v.IsActive).Select(v => new {
+                        id = v.VariantId, attr1Name = v.Attr1Name ?? "", attr1Val = v.Attr1Value ?? "",
+                        attr2Name = v.Attr2Name ?? "", attr2Val = v.Attr2Value ?? "",
+                        stock = v.StockQty,
+                        price = v.PriceOverride.HasValue ? v.PriceOverride.Value : baseDisplayPrice,
+                        hasPriceOverride = v.PriceOverride.HasValue
+                    })
+                );
+                bool hasAttr1 = p.Variants.Any(v => v.IsActive && !string.IsNullOrEmpty(v.Attr1Value));
+                bool hasAttr2 = p.Variants.Any(v => v.IsActive && !string.IsNullOrEmpty(v.Attr2Value));
+                string attr1Label = p.Variants.FirstOrDefault(v => !string.IsNullOrEmpty(v.Attr1Name))?.Attr1Name ?? "Phân loại";
+                string attr2Label = p.Variants.FirstOrDefault(v => !string.IsNullOrEmpty(v.Attr2Name))?.Attr2Name ?? "Tuỳ chọn";
+            }
+
+            @if (hasAttr1)
+            {
+                <div class="variants-section">
+                    <div class="variants-label">@attr1Label: <span id="selected-attr1-label">—</span></div>
+                    <div class="variants-grid" id="variant-group-1">
+                        @foreach (var v in p.Variants.Where(v => v.IsActive && !string.IsNullOrEmpty(v.Attr1Value)).DistinctBy(v => v.Attr1Value))
+                        {
+                            <button class="variant-btn @(v.StockQty == 0 ? "disabled" : "")"
+                                    data-attr1="@v.Attr1Value" data-stock="@v.StockQty"
+                                    onclick="selectAttr1(this)" @(v.StockQty == 0 ? "disabled" : "")>
+                                @v.Attr1Value
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (hasAttr2)
+            {
+                <div class="variants-section">
+                    <div class="variants-label">@attr2Label: <span id="selected-attr2-label">—</span></div>
+                    <div class="variants-grid" id="variant-group-2">
+                        @foreach (var v in p.Variants.Where(v => v.IsActive && !string.IsNullOrEmpty(v.Attr2Value)).DistinctBy(v => v.Attr2Value))
+                        {
+                            <button class="variant-btn" data-attr2="@v.Attr2Value" onclick="selectAttr2(this)">@v.Attr2Value</button>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (!hasAttr1 && !hasAttr2 && p.Variants.Count == 1)
+            {
+                <input type="hidden" id="hidden-variant-id" value="@p.Variants.First().VariantId" />
+            }
+            else
+            {
+                <input type="hidden" id="hidden-variant-id" value="" />
+            }
+
+            <div class="qty-section">
+                <span class="qty-label">Số lượng:</span>
+                <div class="qty-input-wrap">
+                    <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+                    <input class="qty-num" type="number" id="qty" value="1" min="1" max="@p.TotalStock" />
+                    <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                </div>
+            </div>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@p.ProductId" />
+                    <input type="hidden" name="variantId" id="form-variant-id" value="" />
+                    <input type="hidden" name="quantity"  id="form-qty"        value="1"  />
+                    <div class="cta-group">
+                        <button type="submit" class="btn-cart" id="btn-add-cart"
+                                @(p.TotalStock == 0 ? "disabled" : "")>
+                            @(p.TotalStock == 0 ? "Hết Hàng" : "Thêm Vào Giỏ Hàng")
+                        </button>
+                        <button type="button" class="btn-wish" title="Yêu thích">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        </button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="login-notice">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+                    Vui lòng <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">đăng nhập</a> để thêm vào giỏ hàng.
+                </div>
+                <div class="cta-group">
+                    <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path"
+                       class="btn-cart" style="text-decoration:none;display:flex;align-items:center;justify-content:center">
+                        Đăng Nhập Để Mua
+                    </a>
+                    <button type="button" class="btn-wish" title="Yêu thích">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                </div>
+            }
+
+            <div class="usp-row">
+                <div class="usp-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Giao hàng miễn phí đơn từ 500.000₫</div>
+                <div class="usp-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Đổi trả miễn phí trong 30 ngày</div>
+                <div class="usp-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Hàng chính hãng 100% bảo đảm</div>
+            </div>
+
+            <div class="accordion">
+                @if (!string.IsNullOrEmpty(p.Description))
+                {
+                    <div class="accordion-item">
+                        <button class="accordion-btn" onclick="toggleAccordion(this)">Mô tả sản phẩm<span class="accordion-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg></span></button>
+                        <div class="accordion-content">@Html.Raw(p.Description)</div>
+                    </div>
+                }
+                <div class="accordion-item">
+                    <button class="accordion-btn" onclick="toggleAccordion(this)">Hướng dẫn bảo quản<span class="accordion-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg></span></button>
+                    <div class="accordion-content">Giặt máy ở nhiệt độ thấp. Không dùng chất tẩy. Phơi trong bóng râm. Ủi ở nhiệt độ thấp.</div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-btn" onclick="toggleAccordion(this)">Vận chuyển & Đổi trả<span class="accordion-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg></span></button>
+                    <div class="accordion-content">Giao hàng toàn quốc 2–5 ngày làm việc. Đổi trả trong vòng 30 ngày kể từ ngày nhận hàng với điều kiện sản phẩm chưa qua sử dụng và còn nguyên tag.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @if (Model.Related.Any())
+    {
+        <div class="related-section">
+            <div class="related-header">
+                <div class="related-eyebrow">Có thể bạn thích</div>
+                <h2 class="related-title">Sản Phẩm <em>Liên Quan</em></h2>
+            </div>
+            <div class="related-grid">
+                @foreach (var r in Model.Related)
+                {
+                    <div class="product-card">
+                        <div class="product-image-wrap">
+                            @if (r.MainImage != null) { <img src="@r.MainImage.ImagePath" alt="@r.Name" /> }
+                            @if (r.DiscountPercent.HasValue) { <span class="product-badge badge-sale">-@r.DiscountPercent%</span> }
+                        </div>
+                        <div class="product-brand">@r.Category?.Name</div>
+                        <div class="product-name"><a asp-action="Detail" asp-route-slug="@r.Slug">@r.Name</a></div>
+                        <div class="product-price">
+                            <span class="price-current">@r.DisplayPrice.ToString("N0")₫</span>
+                            @if (r.SalePrice.HasValue && r.SalePrice < r.BasePrice && !r.AllVariantsHavePriceOverride)
+                            { <span class="price-original2">@r.BasePrice.ToString("N0")₫</span> }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+<script>
+function switchImage(src, thumb) {
+    document.getElementById('main-img').src = src;
+    document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+}
+
+const VARIANTS           = @Html.Raw(variantJson);
+const BASE_DISPLAY_PRICE = document.querySelector('.price-main')?.textContent || '';
+let selectedAttr1 = null, selectedAttr2 = null;
+
+function selectAttr1(btn) {
+    if (btn.disabled) return;
+    document.querySelectorAll('#variant-group-1 .variant-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedAttr1 = btn.dataset.attr1;
+    const lbl = document.getElementById('selected-attr1-label');
+    if (lbl) lbl.textContent = selectedAttr1;
+    updateVariantState();
+}
+function selectAttr2(btn) {
+    document.querySelectorAll('#variant-group-2 .variant-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedAttr2 = btn.dataset.attr2;
+    const lbl = document.getElementById('selected-attr2-label');
+    if (lbl) lbl.textContent = selectedAttr2;
+    updateVariantState();
+}
+
+function updateVariantState() {
+    const match = VARIANTS.find(v => {
+        const a1 = !selectedAttr1 || v.attr1Val === selectedAttr1;
+        const a2 = !selectedAttr2 || v.attr2Val === selectedAttr2;
+        return a1 && a2;
+    });
+    if (!match) return;
+
+    // Giá
+    if (match.hasPriceOverride) {
+        document.querySelector('.price-main').textContent = new Intl.NumberFormat('vi-VN').format(match.price) + '₫';
+        const po = document.querySelector('.price-original');
+        const pb = document.querySelector('.price-badge');
+        if (po) po.style.display = 'none';
+        if (pb) pb.style.display = 'none';
+    } else {
+        document.querySelector('.price-main').textContent = BASE_DISPLAY_PRICE;
+        const po = document.querySelector('.price-original');
+        const pb = document.querySelector('.price-badge');
+        if (po) po.style.display = '';
+        if (pb) pb.style.display = '';
+    }
+
+    // Sync variant id vào hidden inputs
+    const hv = document.getElementById('hidden-variant-id');
+    const fv = document.getElementById('form-variant-id');
+    if (hv) hv.value = match.id;
+    if (fv) fv.value = match.id;
+
+    // Qty max
+    const qtyInput = document.getElementById('qty');
+    if (qtyInput) {
+        qtyInput.max = match.stock;
+        if (parseInt(qtyInput.value) > match.stock) qtyInput.value = Math.max(1, match.stock);
+        const fq = document.getElementById('form-qty');
+        if (fq) fq.value = qtyInput.value;
+    }
+
+    // Stock label
+    updateStockLabel(match.stock);
+
+    // Nút cart
+    const cartBtn = document.getElementById('btn-add-cart');
+    if (cartBtn) {
+        cartBtn.disabled    = match.stock === 0;
+        cartBtn.textContent = match.stock === 0 ? 'Hết Hàng' : 'Thêm Vào Giỏ Hàng';
+    }
+}
+
+function updateStockLabel(stock) {
+    const el = document.querySelector('.info-stock');
+    if (!el) return;
+    if (stock > 10) el.innerHTML = '<div class="stock-dot stock-in"></div><span>Còn hàng (' + stock + ' sản phẩm)</span>';
+    else if (stock > 0) el.innerHTML = '<div class="stock-dot stock-low"></div><span>Sắp hết hàng (còn ' + stock + ')</span>';
+    else el.innerHTML = '<div class="stock-dot stock-out"></div><span style="color:#999">Hết hàng</span>';
+}
+
+// Qty: sync cả input hiển thị và hidden form
+function changeQty(delta) {
+    const input = document.getElementById('qty');
+    const val   = Math.max(1, Math.min(parseInt(input.max) || 999, parseInt(input.value) + delta));
+    input.value = val;
+    const fq = document.getElementById('form-qty');
+    if (fq) fq.value = val;
+}
+document.getElementById('qty')?.addEventListener('input', function () {
+    const fq = document.getElementById('form-qty');
+    if (fq) fq.value = this.value;
+});
+
+function toggleAccordion(btn) {
+    btn.nextElementSibling.classList.toggle('open');
+    btn.querySelector('.accordion-icon').classList.toggle('open');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const a1 = document.querySelector('#variant-group-1 .variant-btn:not([disabled])');
+    if (a1) a1.click();
+    const a2 = document.querySelector('#variant-group-2 .variant-btn:not([disabled])');
+    if (a2) a2.click();
+});
+</script>
+}

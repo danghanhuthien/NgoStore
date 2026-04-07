@@ -1,0 +1,412 @@
+@model Project_Essay_Course.ViewModels.Product_ViewModel.ProductEditViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chỉnh Sửa: " + Model.Name;
+}
+
+@section Styles {
+<style>
+/* Reuse styles từ Create.cshtml */
+.form-page { max-width: 1100px; margin: 3rem auto; padding: 0 2rem; }
+.form-eyebrow { font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:.5rem; }
+.form-title   { font-family:var(--serif); font-size:clamp(1.6rem,3vw,2.4rem); font-weight:300; margin-bottom:2rem; }
+.form-title em { font-style:italic; }
+.form-layout  { display:grid; grid-template-columns:1fr 360px; gap:2rem; align-items:start; }
+.form-card    { border:1px solid var(--light-gray); padding:2rem 2.5rem; margin-bottom:1.4rem; }
+.form-card-title { font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:2rem; padding-bottom:.8rem; border-bottom:1px solid var(--light-gray); }
+.field-group  { margin-bottom:1.5rem; }
+.field-label  { display:block; font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--charcoal); margin-bottom:.5rem; }
+.field-label .req { color:var(--danger); margin-left:.2rem; }
+.field-input, .field-select, .field-textarea { width:100%; padding:.85rem 1rem; border:1px solid var(--light-gray); background:var(--white); font-family:var(--sans); font-size:.9rem; color:var(--black); outline:none; transition:border-color var(--transition); }
+.field-input:focus, .field-select:focus, .field-textarea:focus { border-color:var(--black); }
+.field-textarea { resize:vertical; min-height:120px; }
+.field-error { font-size:.72rem; color:var(--danger); margin-top:.4rem; display:block; }
+.field-hint  { font-size:.72rem; color:#999; margin-top:.4rem; line-height:1.5; }
+.field-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.slug-wrap { position:relative; }
+.slug-prefix { position:absolute; left:1rem; top:50%; transform:translateY(-50%); font-size:.82rem; color:#bbb; pointer-events:none; }
+.slug-wrap .field-input { padding-left:5.5rem; }
+.checkbox-group { display:flex; align-items:center; gap:.7rem; cursor:pointer; }
+.checkbox-group input[type=checkbox] { accent-color:var(--black); width:16px; height:16px; }
+.checkbox-group span { font-size:.85rem; color:var(--charcoal); }
+.val-summary { background:#fef2f2; border-left:3px solid var(--danger); padding:.9rem 1rem; margin-bottom:1.4rem; font-size:.82rem; color:var(--danger); }
+.val-summary ul { padding-left:1.2rem; margin:0; }
+.btn-submit { padding:.9rem 2.5rem; background:var(--black); color:var(--white); border:1px solid var(--black); font-family:var(--sans); font-size:.78rem; font-weight:400; letter-spacing:.16em; text-transform:uppercase; cursor:pointer; transition:background var(--transition), color var(--transition); width:100%; }
+.btn-submit:hover { background:var(--charcoal); }
+.btn-cancel-link { display:block; padding:.9rem 2rem; background:none; color:var(--charcoal); border:1px solid var(--light-gray); font-family:var(--sans); font-size:.78rem; letter-spacing:.16em; text-transform:uppercase; text-decoration:none; transition:all .25s; text-align:center; margin-top:.6rem; }
+.btn-cancel-link:hover { border-color:var(--black); color:var(--black); }
+
+/* Existing images */
+.existing-images-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin-bottom:1rem; }
+.existing-img-item { position:relative; aspect-ratio:3/4; overflow:hidden; background:var(--cream); }
+.existing-img-item img { width:100%; height:100%; object-fit:cover; }
+.existing-img-check {
+    position:absolute; top:.4rem; left:.4rem;
+    background:rgba(10,10,10,.5); padding:.2rem;
+}
+.existing-img-check input { accent-color:#fff; width:14px; height:14px; cursor:pointer; }
+.main-badge {
+    position:absolute; bottom:.3rem; left:.3rem;
+    font-size:.6rem; letter-spacing:.08em; text-transform:uppercase;
+    background:var(--accent); color:var(--white); padding:.2rem .5rem;
+}
+.set-main-btn {
+    position:absolute; bottom:.3rem; right:.3rem;
+    font-size:.6rem; letter-spacing:.06em; text-transform:uppercase;
+    background:rgba(10,10,10,.65); color:var(--white); padding:.2rem .5rem;
+    border:none; cursor:pointer; transition:background .2s;
+}
+.set-main-btn:hover { background:var(--black); }
+.delete-hint { font-size:.72rem; color:#999; margin-bottom:.8rem; }
+
+/* New image upload */
+.image-upload-area { border:2px dashed var(--light-gray); padding:1.5rem; text-align:center; cursor:pointer; position:relative; transition:border-color .25s; }
+.image-upload-area:hover { border-color:var(--black); }
+.image-upload-area input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.upload-hint-sm { font-size:.72rem; color:#bbb; margin-top:.3rem; }
+
+/* ── Variants redesign ── */
+.variant-hint { font-size:.75rem; color:#888; margin-bottom:1.2rem; padding:.75rem 1rem; background:var(--cream); border-left:3px solid var(--stone); line-height:1.55; }
+
+/* Table-style header */
+.variant-table-head {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 72px 110px 80px 36px;
+    gap: .5rem;
+    padding: .4rem .8rem;
+    background: #f9f9f8;
+    border: 1px solid var(--light-gray);
+    border-bottom: none;
+    margin-top: 1rem;
+}
+.vth { font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: #aaa; font-weight: 400; }
+
+/* Each variant row */
+.variant-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 72px 110px 80px 36px;
+    gap: .5rem;
+    padding: .7rem .8rem;
+    border: 1px solid var(--light-gray);
+    border-top: none;
+    align-items: start;
+    background: var(--white);
+    transition: background .15s;
+}
+.variant-row:hover { background: #fafaf8; }
+.variant-row:last-child { border-bottom: 1px solid var(--light-gray); }
+
+/* Attr cell: tên + giá trị xếp dọc */
+.v-attr-cell { display: flex; flex-direction: column; gap: .2rem; }
+/* v-attr-value: input chính */
+.v-attr-value { font-size: .88rem; padding: .48rem .65rem; border: 1px solid var(--light-gray); background: var(--white); font-family: var(--sans); color: var(--black); outline: none; width: 100%; transition: border-color .2s; }
+.v-attr-value:focus { border-color: var(--black); }
+.v-attr-value::placeholder { color: #ccc; }
+
+/* Number input */
+.v-num { padding: .5rem .6rem; border: 1px solid var(--light-gray); background: var(--white); font-family: var(--sans); font-size: .85rem; color: var(--black); outline: none; width: 100%; transition: border-color .2s; text-align: center; }
+.v-num:focus { border-color: var(--black); }
+
+/* Text input (SKU) */
+.v-text { padding: .5rem .6rem; border: 1px solid var(--light-gray); background: var(--white); font-family: var(--sans); font-size: .82rem; color: var(--black); outline: none; width: 100%; transition: border-color .2s; }
+.v-text:focus { border-color: var(--black); }
+
+.btn-remove-variant {
+    width: 28px; height: 28px; margin-top: 4px;
+    background: none; border: 1px solid rgba(192,57,43,.25);
+    color: var(--danger); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s; border-radius: 50%; flex-shrink: 0;
+}
+.btn-remove-variant:hover { background: var(--danger); color: var(--white); }
+.btn-remove-variant svg { width: 12px; height: 12px; stroke-width: 2.5; }
+
+.btn-add-variant {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .55rem 1.1rem; margin-top: .8rem;
+    border: 1px dashed var(--stone); background: none;
+    font-family: var(--sans); font-size: .7rem; letter-spacing: .12em;
+    text-transform: uppercase; cursor: pointer; color: #888;
+    transition: all .2s; width: 100%; justify-content: center;
+}
+.btn-add-variant:hover { border-color: var(--black); color: var(--black); background: var(--cream); }
+.btn-add-variant svg { width: 13px; height: 13px; stroke-width: 2; }
+
+@@media (max-width:900px) { .form-layout { grid-template-columns:1fr; } }
+</style>
+}
+
+<div class="form-page">
+
+<div class="form-eyebrow">Quản Trị Viên</div>
+    <h1 class="form-title">Chỉnh Sửa <em>Sản Phẩm</em></h1>
+
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+    {
+        <div class="val-summary">
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form asp-action="Edit" asp-route-id="@Model.ProductId" method="post" enctype="multipart/form-data" novalidate>
+        @Html.AntiForgeryToken()
+        <input asp-for="ProductId" type="hidden" />
+
+        <div class="form-layout">
+
+            <div>
+                <div class="form-card">
+                    <div class="form-card-title">Thông Tin Cơ Bản</div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="Name">Tên sản phẩm <span class="req">*</span></label>
+                        <input asp-for="Name" class="field-input" />
+                        <span asp-validation-for="Name" class="field-error"></span>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="Slug">Slug (URL) <span class="req">*</span></label>
+                        <div class="slug-wrap">
+                            <span class="slug-prefix">/product/</span>
+                            <input asp-for="Slug" class="field-input" />
+                        </div>
+                        <span asp-validation-for="Slug" class="field-error"></span>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="ShortDesc">Mô tả ngắn</label>
+                        <textarea asp-for="ShortDesc" class="field-textarea" rows="3"></textarea>
+                        <span asp-validation-for="ShortDesc" class="field-error"></span>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="Description">Mô tả chi tiết</label>
+                        <textarea asp-for="Description" class="field-textarea" rows="6"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">Giá & SKU</div>
+                    <div class="field-grid-2">
+                        <div class="field-group">
+                            <label class="field-label" asp-for="BasePrice">Giá gốc (₫) <span class="req">*</span></label>
+                            <input asp-for="BasePrice" type="number" class="field-input" min="0" step="1000" />
+                            <span asp-validation-for="BasePrice" class="field-error"></span>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" asp-for="SalePrice">Giá sale (₫)</label>
+                            <input asp-for="SalePrice" type="number" class="field-input" min="0" step="1000" placeholder="Bỏ trống = không sale" />
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" asp-for="SKU">Mã SKU</label>
+                        <input asp-for="SKU" class="field-input" />
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">Biến Thể Sản Phẩm</div>
+                    <div class="variant-hint">
+                        ✏️ Mỗi hàng = 1 biến thể. Nhập tên thuộc tính (Size, Màu...) và giá trị (M, Đen...). Xóa hàng = nhấn ✕.
+                    </div>
+
+                    <div class="variant-table-head">
+                        <div class="vth">Kích thước</div>
+                        <div class="vth">Màu sắc</div>
+                        <div class="vth">Thuộc tính 3</div>
+                        <div class="vth">Kho</div>
+                        <div class="vth">Giá riêng (₫)</div>
+                        <div class="vth">SKU</div>
+                        <div></div>
+                    </div>
+
+                    <div id="variants-container">
+                        @if (Model.Variants != null)
+                        {
+                            @* Lọc bỏ variant mặc định trống (không có attr nào) *@
+                            var displayVariants = Model.Variants
+                                .Where(v => !string.IsNullOrWhiteSpace(v.Attr1Value)
+                                         || !string.IsNullOrWhiteSpace(v.Attr2Value)
+                                         || !string.IsNullOrWhiteSpace(v.Attr3Value))
+                                .ToList();
+
+                            @for (int i = 0; i < displayVariants.Count; i++)
+                            {
+                                var v = displayVariants[i];
+                                <div class="variant-row" id="vrow-@i">
+                                    <input type="hidden" name="Variants[@i].VariantId" value="@v.VariantId" />
+
+                                    <div class="v-attr-cell">
+                                        <input type="hidden" name="Variants[@i].Attr1Name" value="@v.Attr1Name" />
+                                        <input name="Variants[@i].Attr1Value" class="v-attr-value" value="@v.Attr1Value" placeholder="VD: M, L, XL..." />
+                                    </div>
+                                    <div class="v-attr-cell">
+                                        <input type="hidden" name="Variants[@i].Attr2Name" value="@v.Attr2Name" />
+                                        <input name="Variants[@i].Attr2Value" class="v-attr-value" value="@v.Attr2Value" placeholder="VD: Đen, Trắng..." />
+                                    </div>
+                                    <div class="v-attr-cell">
+                                        <input type="hidden" name="Variants[@i].Attr3Name" value="@v.Attr3Name" />
+                                        <input name="Variants[@i].Attr3Value" class="v-attr-value" value="@v.Attr3Value" placeholder="Giá trị 3..." />
+                                    </div>
+
+                                    <input name="Variants[@i].StockQty"      type="number" class="v-num"  value="@v.StockQty"     min="0" placeholder="0" />
+                                    <input name="Variants[@i].PriceOverride" type="number" class="v-num"  value="@v.PriceOverride" min="0" step="1000" placeholder="Giá gốc" />
+                                    <input name="Variants[@i].SKU"           type="text"   class="v-text" value="@v.SKU"           placeholder="SKU" />
+
+                                    <button type="button" class="btn-remove-variant" onclick="document.getElementById('vrow-@i').remove()" title="Xóa biến thể này">
+                                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                                    </button>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <button type="button" class="btn-add-variant" onclick="addVariantRow()">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+                        Thêm biến thể mới
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                @if (Model.ExistingImages.Any())
+                {
+                    <div class="form-card">
+                        <div class="form-card-title">Ảnh Hiện Tại</div>
+                        <div class="delete-hint">Tích chọn ảnh để xóa khi lưu</div>
+                        <div class="existing-images-grid">
+                            @foreach (var img in Model.ExistingImages)
+                            {
+                                <div class="existing-img-item">
+                                    <img src="@img.ImagePath" alt="@img.AltText" />
+                                    <div class="existing-img-check">
+                                        <input type="checkbox" name="DeleteImageIds" value="@img.ImageId"
+                                               title="Tích để xóa ảnh này" />
+                                    </div>
+                                    @if (img.IsMain)
+                                    {
+                                        <span class="main-badge">Đại diện</span>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="SetMainImage" method="post" style="display:inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="imageId"   value="@img.ImageId" />
+                                            <input type="hidden" name="productId" value="@Model.ProductId" />
+                                            <button type="submit" class="set-main-btn">Đặt chính</button>
+                                        </form>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="form-card">
+                    <div class="form-card-title">Thêm Ảnh Mới</div>
+                    <div class="image-upload-area">
+                        <input type="file" asp-for="NewImages" multiple accept="image/jpeg,image/png,image/webp"
+                               onchange="previewNewImages(this)" />
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:32px;height:32px;margin:0 auto .6rem;color:var(--stone);stroke-width:1.2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <div style="font-size:.82rem;color:var(--charcoal)">Click để chọn ảnh</div>
+                        <div class="upload-hint-sm">JPG, PNG, WebP · Tối đa 5MB/ảnh</div>
+                    </div>
+                    <div id="new-image-preview" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.7rem"></div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">Phân Loại</div>
+                    <div class="field-group">
+                        <label class="field-label" asp-for="CategoryId">Danh mục <span class="req">*</span></label>
+                        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="field-select">
+                            <option value="">— Chọn danh mục —</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">Cài Đặt</div>
+                    <div class="field-group">
+                        <label class="checkbox-group">
+                            <input asp-for="IsActive" type="checkbox" />
+                            <span>Kích hoạt (hiển thị ngoài shop)</span>
+                        </label>
+                    </div>
+                    <div class="field-group">
+                        <label class="checkbox-group">
+                            <input asp-for="IsFeatured" type="checkbox" />
+                            <span>Hiển thị ở trang chủ</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Lưu Thay Đổi</button>
+                <a asp-action="Manage" class="btn-cancel-link">Hủy</a>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+function previewNewImages(input) {
+    const preview = document.getElementById('new-image-preview');
+    preview.innerHTML = '';
+    Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.style.cssText = 'aspect-ratio:3/4;overflow:hidden;background:var(--cream)';
+            div.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover" />`;
+            preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+let variantCount = @(Model.Variants?.Count(v =>
+    !string.IsNullOrWhiteSpace(v.Attr1Value) ||
+    !string.IsNullOrWhiteSpace(v.Attr2Value) ||
+    !string.IsNullOrWhiteSpace(v.Attr3Value)) ?? 0);
+function addVariantRow() {
+    const i = variantCount++;
+    const row = document.createElement('div');
+    row.className = 'variant-row';
+    row.id = `vnew-${i}`;
+    row.innerHTML = `
+        <input type="hidden" name="Variants[${i}].VariantId" value="0" />
+        <div class="v-attr-cell">
+            <input type="hidden" name="Variants[${i}].Attr1Name" value="" />
+            <input name="Variants[${i}].Attr1Value" class="v-attr-value" placeholder="VD: M, L, XL..." />
+        </div>
+        <div class="v-attr-cell">
+            <input type="hidden" name="Variants[${i}].Attr2Name" value="" />
+            <input name="Variants[${i}].Attr2Value" class="v-attr-value" placeholder="VD: Đen, Trắng..." />
+        </div>
+        <div class="v-attr-cell">
+            <input type="hidden" name="Variants[${i}].Attr3Name" value="" />
+            <input name="Variants[${i}].Attr3Value" class="v-attr-value" placeholder="Giá trị 3..." />
+        </div>
+        <input name="Variants[${i}].StockQty"      type="number" class="v-num"  value="0" min="0" placeholder="0" />
+        <input name="Variants[${i}].PriceOverride" type="number" class="v-num"  placeholder="Giá gốc" min="0" step="1000" />
+        <input name="Variants[${i}].SKU"           type="text"   class="v-text" placeholder="SKU" />
+        <button type="button" class="btn-remove-variant" onclick="document.getElementById('vnew-${i}').remove()" title="Xóa">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+    `;
+    document.getElementById('variants-container').appendChild(row);
+    // Focus vào ô đầu tiên
+    row.querySelector('.v-attr-value')?.focus();
+}
+</script>
+}

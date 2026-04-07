@@ -1,0 +1,139 @@
+@model Project_Essay_Course.ViewModels.Order_ViewModel.OrderListViewModel
+@{ ViewData["Title"] = "Đơn Hàng Của Tôi"; }
+
+@section Styles {
+<style>
+.orders-page { max-width: 900px; margin: 3rem auto; padding: 0 2rem; }
+.orders-header { margin-bottom: 2rem; }
+.orders-eyebrow { font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:.4rem; }
+.orders-title { font-family:var(--serif); font-size:clamp(1.6rem,3vw,2.2rem); font-weight:300; }
+.orders-title em { font-style:italic; }
+
+/* Filter tabs */
+.status-tabs { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+.status-tab { padding:.45rem 1rem; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; border:1px solid var(--light-gray); background:none; color:#888; text-decoration:none; transition:all .2s; }
+.status-tab:hover, .status-tab.active { border-color:var(--black); color:var(--black); background:var(--cream); }
+
+/* Order cards */
+.order-card { border:1px solid var(--light-gray); margin-bottom:1rem; transition:box-shadow .2s; }
+.order-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.06); }
+.order-card-header { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.4rem; border-bottom:1px solid var(--light-gray); flex-wrap:wrap; gap:.5rem; }
+.order-code { font-family:monospace; font-size:.88rem; font-weight:600; color:var(--black); }
+.order-date { font-size:.75rem; color:#999; }
+.order-status-badge { font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; padding:.3rem .8rem; border-radius:0; font-weight:500; }
+
+.order-card-body { padding:1rem 1.4rem; }
+.order-items-preview { display:flex; gap:.6rem; margin-bottom:.8rem; flex-wrap:wrap; }
+.order-thumb { width:52px; height:65px; object-fit:cover; background:var(--cream); }
+.order-thumb-ph { width:52px; height:65px; background:var(--cream); display:flex; align-items:center; justify-content:center; }
+.order-thumb-ph svg { width:18px; height:18px; color:var(--stone); stroke-width:1; }
+.order-more-badge { width:52px; height:65px; background:var(--light-gray); display:flex; align-items:center; justify-content:center; font-size:.78rem; color:#888; }
+
+.order-card-footer { display:flex; align-items:center; justify-content:space-between; padding:.8rem 1.4rem; background:#fafaf8; flex-wrap:wrap; gap:.5rem; }
+.order-total { font-size:.95rem; font-weight:600; color:var(--black); }
+.order-total span { font-size:.75rem; color:#999; font-weight:400; margin-right:.4rem; }
+.btn-order-detail { padding:.45rem 1.2rem; border:1px solid var(--light-gray); background:none; font-family:var(--sans); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--charcoal); text-decoration:none; transition:all .2s; }
+.btn-order-detail:hover { border-color:var(--black); color:var(--black); }
+
+/* Empty */
+.orders-empty { text-align:center; padding:4rem 2rem; color:#bbb; }
+.orders-empty svg { width:52px; height:52px; stroke-width:.8; margin:0 auto 1rem; }
+.orders-empty-title { font-family:var(--serif); font-size:1.4rem; font-weight:300; margin-bottom:.5rem; }
+.orders-empty a { color:var(--black); border-bottom:1px solid; text-decoration:none; }
+
+/* Pagination */
+.pagination { display:flex; justify-content:center; gap:.4rem; margin-top:2rem; }
+.page-btn { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border:1px solid var(--light-gray); background:none; font-size:.82rem; color:var(--charcoal); text-decoration:none; transition:all .2s; }
+.page-btn:hover, .page-btn.active { background:var(--black); color:var(--white); border-color:var(--black); }
+</style>
+}
+
+<div class="orders-page">
+
+    <div class="orders-header">
+        <div class="orders-eyebrow">Tài Khoản</div>
+        <h1 class="orders-title">Đơn Hàng <em>Của Tôi</em></h1>
+    </div>
+
+    <div class="status-tabs">
+        <a asp-action="Index" class="status-tab @(Model.StatusFilter == null ? "active" : "")">Tất cả</a>
+        <a asp-action="Index" asp-route-status="Pending"    class="status-tab @(Model.StatusFilter == "Pending"    ? "active" : "")">Chờ xác nhận</a>
+        <a asp-action="Index" asp-route-status="Confirmed"  class="status-tab @(Model.StatusFilter == "Confirmed"  ? "active" : "")">Đã xác nhận</a>
+        <a asp-action="Index" asp-route-status="Processing" class="status-tab @(Model.StatusFilter == "Processing" ? "active" : "")">Đang chuẩn bị</a>
+        <a asp-action="Index" asp-route-status="Shipping"   class="status-tab @(Model.StatusFilter == "Shipping"   ? "active" : "")">Đang giao</a>
+        <a asp-action="Index" asp-route-status="Delivered"  class="status-tab @(Model.StatusFilter == "Delivered"  ? "active" : "")">Hoàn thành</a>
+        <a asp-action="Index" asp-route-status="Cancelled"  class="status-tab @(Model.StatusFilter == "Cancelled"  ? "active" : "")">Đã hủy</a>
+    </div>
+
+    @if (!Model.Orders.Any())
+    {
+        <div class="orders-empty">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <div class="orders-empty-title">Chưa có đơn hàng nào</div>
+            <p><a asp-controller="Product" asp-action="Index">Khám phá sản phẩm</a> và đặt hàng ngay!</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var order in Model.Orders)
+        {
+            <div class="order-card">
+                <div class="order-card-header">
+                    <div>
+                        <div class="order-code">#@order.OrderCode</div>
+                        <div class="order-date">@order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                    <span class="order-status-badge"
+                          style="background:@order.StatusColor + "1a"; color:@order.StatusColor; border:1px solid @(order.StatusColor + "40")">
+                        @order.StatusDisplay
+                    </span>
+                </div>
+
+                <div class="order-card-body">
+                    <div class="order-items-preview">
+                        @{
+                            var previewItems = order.OrderItems.Take(4).ToList();
+                            var remaining    = order.OrderItems.Count - 4;
+                        }
+                        @foreach (var item in previewItems)
+                        {
+                            @if (!string.IsNullOrEmpty(item.ProductImage))
+                            {
+                                <img class="order-thumb" src="@item.ProductImage" alt="@item.ProductName" title="@item.ProductName" />
+                            }
+                            else
+                            {
+                                <div class="order-thumb-ph"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>
+                            }
+                        }
+                        @if (remaining > 0)
+                        {
+                            <div class="order-more-badge">+@remaining</div>
+                        }
+                    </div>
+                </div>
+
+                <div class="order-card-footer">
+                    <div class="order-total">
+                        <span>Tổng cộng</span>@order.TotalAmount.ToString("N0")₫
+                    </div>
+                    <a asp-action="Detail" asp-route-id="@order.OrderId" class="btn-order-detail">
+                        Xem chi tiết →
+                    </a>
+                </div>
+            </div>
+        }
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="pagination">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a class="page-btn @(i == Model.CurrentPage ? "active" : "")"
+                       asp-action="Index" asp-route-page="@i" asp-route-status="@Model.StatusFilter">@i</a>
+                }
+            </div>
+        }
+    }
+
+</div>

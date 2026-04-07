@@ -1,0 +1,544 @@
+@model Project_Essay_Course.ViewModels.Product_ViewModel.ProductListViewModel
+@{
+    ViewData["Title"] = ViewBag.PageTitle ?? "Tất Cả Sản Phẩm";
+}
+
+@section Styles {
+<style>
+.shop-page {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 3rem;
+    max-width: 1400px;
+    margin: 2.5rem auto;
+    padding: 0 2.5rem;
+    align-items: start;
+}
+
+/* ── Page header ── */
+.shop-header {
+    grid-column: 1 / -1;
+    display: flex; align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--light-gray);
+    flex-wrap: wrap; gap: 1rem;
+}
+.shop-header-left {}
+.shop-eyebrow { font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:.4rem; }
+.shop-title   { font-family:var(--serif); font-size:clamp(1.8rem,3vw,2.8rem); font-weight:300; }
+.shop-title em { font-style:italic; }
+.shop-count   { font-size:.8rem; color:#999; margin-top:.3rem; }
+
+/* Sort bar */
+.sort-bar { display:flex; align-items:center; gap:.8rem; }
+.sort-label { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:#999; white-space:nowrap; }
+.sort-select {
+    padding:.55rem 1rem; border:1px solid var(--light-gray);
+    background:var(--white); font-family:var(--sans); font-size:.82rem;
+    color:var(--black); outline:none; cursor:pointer;
+    transition:border-color var(--transition);
+}
+.sort-select:focus { border-color:var(--black); }
+
+/* ── SIDEBAR ── */
+.shop-sidebar { position:sticky; top:calc(var(--header-h) + 1.5rem); }
+
+.sidebar-section { margin-bottom:2rem; }
+.sidebar-title {
+    font-size:.68rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:1rem;
+    padding-bottom:.6rem; border-bottom:1px solid var(--light-gray);
+}
+
+/* Search */
+.sidebar-search { position:relative; }
+.sidebar-search svg {
+    position:absolute; left:.8rem; top:50%; transform:translateY(-50%);
+    width:15px; height:15px; stroke-width:1.6; color:#bbb;
+}
+.sidebar-search input {
+    width:100%; padding:.7rem .8rem .7rem 2.4rem;
+    border:1px solid var(--light-gray); background:var(--white);
+    font-family:var(--sans); font-size:.85rem; outline:none;
+    transition:border-color var(--transition);
+}
+.sidebar-search input:focus { border-color:var(--black); }
+
+/* Category links */
+.cat-list { list-style:none; display:flex; flex-direction:column; gap:.1rem; }
+.cat-item a {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:.55rem .5rem; font-size:.85rem; color:var(--charcoal);
+    text-decoration:none; transition:color .2s, background .2s;
+}
+.cat-item a:hover    { color:var(--black); background:var(--cream); padding-left:.8rem; }
+.cat-item a.active   { color:var(--black); font-weight:500; background:var(--cream); padding-left:.8rem; }
+.cat-count { font-size:.72rem; color:#bbb; }
+
+.cat-children { padding-left:1rem; }
+.cat-children .cat-item a { font-size:.8rem; }
+
+/* Price filter */
+.price-inputs { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:.8rem; }
+.price-input {
+    width:100%; padding:.65rem .7rem;
+    border:1px solid var(--light-gray); background:var(--white);
+    font-family:var(--sans); font-size:.82rem; outline:none;
+    transition:border-color var(--transition);
+}
+.price-input:focus { border-color:var(--black); }
+.btn-filter-apply {
+    width:100%; padding:.7rem;
+    background:var(--black); color:var(--white);
+    border:none; font-family:var(--sans); font-size:.72rem;
+    letter-spacing:.14em; text-transform:uppercase;
+    cursor:pointer; transition:background var(--transition);
+}
+.btn-filter-apply:hover { background:var(--charcoal); }
+
+/* Active filters */
+.active-filters { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1rem; }
+.filter-tag {
+    display:inline-flex; align-items:center; gap:.4rem;
+    padding:.3rem .7rem; background:var(--cream);
+    border:1px solid var(--stone); font-size:.72rem;
+    color:var(--charcoal); text-decoration:none;
+}
+.filter-tag:hover { background:var(--light-gray); }
+.filter-tag svg { width:11px; height:11px; stroke-width:2.5; }
+
+/* ── PRODUCT GRID ── */
+.products-area {}
+
+.products-grid {
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:1.4rem;
+}
+
+.product-card { position:relative; cursor:pointer; }
+.product-image-wrap {
+    position:relative; overflow:hidden;
+    aspect-ratio:3/4; background:var(--cream); margin-bottom:.9rem;
+}
+.product-image-wrap img {
+    width:100%; height:100%; object-fit:cover;
+    transition:transform .65s cubic-bezier(.25,.46,.45,.94);
+}
+.product-card:hover .product-image-wrap img { transform:scale(1.07); }
+
+.product-badge {
+    position:absolute; top:.8rem; left:.8rem; z-index:1;
+    font-size:.6rem; letter-spacing:.1em; text-transform:uppercase;
+    padding:.25rem .6rem; font-weight:500;
+}
+.badge-new  { background:var(--black);  color:var(--white); }
+.badge-sale { background:#c0392b;       color:var(--white); }
+.badge-featured { background:var(--accent); color:var(--white); }
+
+.product-actions {
+    position:absolute; bottom:0; left:0; right:0;
+    padding:.8rem; display:flex; gap:.4rem;
+    transform:translateY(100%);
+    transition:transform .32s cubic-bezier(.25,.46,.45,.94);
+    z-index:2;
+}
+.product-card:hover .product-actions { transform:translateY(0); }
+.btn-add-cart {
+    flex:1; padding:.7rem; background:rgba(250,250,248,.92);
+    border:1px solid rgba(200,191,176,.4); backdrop-filter:blur(4px);
+    font-family:var(--sans); font-size:.68rem; letter-spacing:.1em;
+    text-transform:uppercase; cursor:pointer; color:var(--black);
+    transition:background .25s, color .25s;
+}
+.btn-add-cart:hover { background:var(--black); color:var(--white); }
+.btn-wishlist-sm {
+    padding:.7rem .8rem; background:rgba(250,250,248,.88);
+    border:none; cursor:pointer; backdrop-filter:blur(4px);
+    display:flex; align-items:center; transition:background .25s;
+}
+.btn-wishlist-sm:hover { background:var(--white); }
+.btn-wishlist-sm svg { width:15px; height:15px; stroke-width:1.4; }
+
+.product-info    {}
+.product-brand   { font-size:.65rem; letter-spacing:.14em; text-transform:uppercase; color:#999; margin-bottom:.25rem; }
+.product-name    { font-family:var(--serif); font-size:1rem; font-weight:400; color:var(--black); margin-bottom:.45rem; line-height:1.3; }
+.product-name a  { text-decoration:none; color:inherit; }
+.product-name a:hover { color:var(--accent); }
+.product-price   { display:flex; flex-direction:column; gap:.2rem; }
+.price-row-main  { display:flex; align-items:center; gap:.5rem; }
+.price-current   { font-size:.9rem; font-weight:500; color:var(--black); }
+.price-discount  { font-size:.62rem; letter-spacing:.06em; color:#fff; background:#c0392b; padding:.15rem .45rem; font-weight:500; }
+.price-original  { font-size:.75rem; color:#bbb; text-decoration:line-through; }
+
+/* Out of stock overlay */
+.out-of-stock-overlay {
+    position:absolute; inset:0;
+    background:rgba(250,250,248,.6);
+    display:flex; align-items:center; justify-content:center; z-index:3;
+}
+.out-of-stock-label {
+    font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    color:#999; background:var(--white); padding:.4rem .9rem;
+    border:1px solid var(--light-gray);
+}
+
+/* ── EMPTY STATE ── */
+.empty-shop {
+    grid-column:1/-1; text-align:center; padding:5rem 2rem; color:#ccc;
+}
+.empty-shop svg { width:52px; height:52px; stroke-width:1; margin:0 auto 1.2rem; }
+.empty-shop p   { font-size:.95rem; margin-bottom:1.5rem; }
+
+/* ── PAGINATION ── */
+.pagination {
+    display:flex; justify-content:center; align-items:center;
+    gap:.4rem; margin-top:3rem; grid-column:1/-1;
+}
+.page-btn {
+    width:38px; height:38px;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--light-gray); background:none;
+    font-family:var(--sans); font-size:.82rem;
+    color:var(--charcoal); text-decoration:none;
+    transition:all .2s; cursor:pointer;
+}
+.page-btn:hover, .page-btn.active {
+    background:var(--black); color:var(--white); border-color:var(--black);
+}
+.page-btn svg { width:14px; height:14px; stroke-width:2; }
+
+@@media (max-width:1024px) { .products-grid { grid-template-columns:repeat(2,1fr); } }
+@@media (max-width:768px)  {
+    .shop-page { grid-template-columns:1fr; }
+    .shop-sidebar { position:static; display:none; }
+    .shop-sidebar.open { display:block; }
+}
+</style>
+}
+
+<div class="shop-page">
+
+    @* ── Header ── *@
+    <div class="shop-header">
+        <div class="shop-header-left">
+            <div class="shop-eyebrow">Cửa Hàng</div>
+            <h1 class="shop-title">
+                @if (ViewBag.PageTitle != null)
+                {
+                    @ViewBag.PageTitle
+                }
+                else if (Model.CurrentCategoryId.HasValue)
+                {
+                    var cat = Model.Categories.FirstOrDefault(c => c.CategoryId == Model.CurrentCategoryId);
+                    <em>@(cat?.Name ?? "Sản Phẩm")</em>
+                }
+                else if (!string.IsNullOrEmpty(Model.Search))
+                {
+                    <span>Kết quả: <em>"@Model.Search"</em></span>
+                }
+                else
+                {
+                    <span>Tất Cả <em>Sản Phẩm</em></span>
+                }
+            </h1>
+            <div class="shop-count">@Model.TotalItems sản phẩm</div>
+        </div>
+
+        <div class="sort-bar">
+            <span class="sort-label">Sắp xếp:</span>
+            <select class="sort-select" onchange="applySort(this.value)">
+                <option value=""          selected="@(Model.Sort == null)">Nổi bật</option>
+                <option value="newest"    selected="@(Model.Sort == "newest")">Mới nhất</option>
+                <option value="price_asc" selected="@(Model.Sort == "price_asc")">Giá thấp → cao</option>
+                <option value="price_desc"selected="@(Model.Sort == "price_desc")">Giá cao → thấp</option>
+                <option value="name_asc"  selected="@(Model.Sort == "name_asc")">Tên A → Z</option>
+            </select>
+        </div>
+    </div>
+
+    @* ── Sidebar ── *@
+    <aside class="shop-sidebar">
+
+        @* Search *@
+        <div class="sidebar-section">
+            <div class="sidebar-title">Tìm Kiếm</div>
+            <form asp-action="Index" method="get">
+                <input type="hidden" name="categoryId" value="@Model.CurrentCategoryId" />
+                <input type="hidden" name="sort" value="@Model.Sort" />
+                <div class="sidebar-search">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input type="text" name="search" value="@Model.Search"
+                           placeholder="Tìm sản phẩm..." />
+                </div>
+            </form>
+        </div>
+
+        @* Active filters *@
+        @if (Model.CurrentCategoryId.HasValue || !string.IsNullOrEmpty(Model.Search) || Model.MinPrice.HasValue || Model.MaxPrice.HasValue)
+        {
+            <div class="sidebar-section">
+                <div class="sidebar-title">Đang Lọc</div>
+                <div class="active-filters">
+                    @if (!string.IsNullOrEmpty(Model.Search))
+                    {
+                        <a href="@Url.Action("Index", new { categoryId = Model.CurrentCategoryId, sort = Model.Sort })"
+                           class="filter-tag">
+                            Tìm: @Model.Search
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                        </a>
+                    }
+                    @if (Model.MinPrice.HasValue || Model.MaxPrice.HasValue)
+                    {
+                        <a href="@Url.Action("Index", new { categoryId = Model.CurrentCategoryId, search = Model.Search, sort = Model.Sort })"
+                           class="filter-tag">
+                            Giá: @(Model.MinPrice?.ToString("N0") ?? "0")₫ – @(Model.MaxPrice?.ToString("N0") ?? "∞")₫
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                        </a>
+                    }
+                    <a href="@Url.Action("Index")" class="filter-tag" style="color:var(--danger)">
+                        Xóa tất cả
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                    </a>
+                </div>
+            </div>
+        }
+
+        @* Categories *@
+        @if (Model.Categories.Any())
+        {
+            <div class="sidebar-section">
+                <div class="sidebar-title">Danh Mục</div>
+                <ul class="cat-list">
+                    <li class="cat-item">
+                        <a asp-action="Index" asp-route-sort="@Model.Sort"
+                           class="@(Model.CurrentCategoryId == null ? "active" : "")">
+                            Tất cả
+                        </a>
+                    </li>
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <li class="cat-item">
+                            <a asp-action="Index"
+                               asp-route-categoryId="@cat.CategoryId"
+                               asp-route-sort="@Model.Sort"
+                               class="@(Model.CurrentCategoryId == cat.CategoryId ? "active" : "")">
+                                @cat.Name
+                                <span class="cat-count">@cat.Products.Count(p => p.IsActive)</span>
+                            </a>
+                            @if (cat.Children.Any())
+                            {
+                                <ul class="cat-list cat-children">
+                                    @foreach (var child in cat.Children)
+                                    {
+                                        <li class="cat-item">
+                                            <a asp-action="Index"
+                                               asp-route-categoryId="@child.CategoryId"
+                                               asp-route-sort="@Model.Sort"
+                                               class="@(Model.CurrentCategoryId == child.CategoryId ? "active" : "")">
+                                                @child.Name
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+
+        @* Price filter *@
+        <div class="sidebar-section">
+            <div class="sidebar-title">Khoảng Giá</div>
+            <form asp-action="Index" method="get" id="price-form">
+                <input type="hidden" name="categoryId" value="@Model.CurrentCategoryId" />
+                <input type="hidden" name="search"     value="@Model.Search" />
+                <input type="hidden" name="sort"       value="@Model.Sort" />
+                <div class="price-inputs">
+                    <input type="number" name="minPrice" class="price-input"
+                           placeholder="Từ (₫)" value="@Model.MinPrice" min="0" />
+                    <input type="number" name="maxPrice" class="price-input"
+                           placeholder="Đến (₫)" value="@Model.MaxPrice" min="0" />
+                </div>
+                <button type="submit" class="btn-filter-apply">Áp Dụng</button>
+            </form>
+        </div>
+
+    </aside>
+
+    @* ── Product Grid ── *@
+    <div class="products-area">
+        @if (!Model.Products.Any())
+        {
+            <div class="empty-shop">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                </svg>
+                <p>Không tìm thấy sản phẩm nào.</p>
+                <a asp-action="Index" class="btn-primary">Xem tất cả sản phẩm</a>
+            </div>
+        }
+        else
+        {
+            <div class="products-grid">
+                @foreach (var p in Model.Products)
+                {
+                    <div class="product-card">
+                        <div class="product-image-wrap">
+                            @if (p.MainImage != null)
+                            {
+                                <img src="@p.MainImage.ImagePath" alt="@(p.MainImage.AltText ?? p.Name)" />
+                            }
+                            else
+                            {
+                                <div style="width:100%;height:100%;background:var(--cream);display:flex;align-items:center;justify-content:center">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:40px;height:40px;color:var(--stone);stroke-width:1">
+                                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <path d="M21 15l-5-5L5 21"/>
+                                    </svg>
+                                </div>
+                            }
+
+                            @* Badges *@
+                            @if (p.DiscountPercent.HasValue)
+                            {
+                                <span class="product-badge badge-sale">-@p.DiscountPercent%</span>
+                            }
+                            else if (p.IsFeatured)
+                            {
+                                <span class="product-badge badge-featured">Hot</span>
+                            }
+                            else if ((DateTime.UtcNow - p.CreatedAt).TotalDays <= 14)
+                            {
+                                <span class="product-badge badge-new">Mới</span>
+                            }
+
+                            @* Out of stock *@
+                            @if (p.TotalStock == 0)
+                            {
+                                <div class="out-of-stock-overlay">
+                                    <span class="out-of-stock-label">Hết hàng</span>
+                                </div>
+                            }
+
+                            @* Hover actions *@
+                            <div class="product-actions">
+                                <button class="btn-add-cart" onclick="addToCart(@p.ProductId, event)">
+                                    Thêm vào giỏ
+                                </button>
+                                <button class="btn-wishlist-sm">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="product-info">
+                            <div class="product-brand">@p.Category?.Name</div>
+                            <div class="product-name">
+                                <a asp-action="Detail" asp-route-slug="@p.Slug">@p.Name</a>
+                            </div>
+                            <div class="product-price">
+                                <div class="price-row-main">
+                                    @if (p.ShowFromPrice)
+                                    {
+                                        <span style="font-size:.7rem;color:#999;margin-right:.15rem">Từ</span>
+                                    }
+                                    <span class="price-current">@p.DisplayPrice.ToString("N0")₫</span>
+                                    @if (p.DiscountPercent.HasValue)
+                                    {
+                                        <span class="price-discount">-@p.DiscountPercent%</span>
+                                    }
+                                </div>
+                                @if (!p.AllVariantsHavePriceOverride && p.SalePrice.HasValue && p.SalePrice < p.BasePrice)
+                                {
+                                    <span class="price-original">@p.BasePrice.ToString("N0")₫</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @* Pagination *@
+            @if (Model.TotalPages > 1)
+            {
+                <div class="pagination">
+                    @if (Model.HasPrev)
+                    {
+                        <a class="page-btn"
+                           asp-action="Index"
+                           asp-route-page="@(Model.CurrentPage - 1)"
+                           asp-route-categoryId="@Model.CurrentCategoryId"
+                           asp-route-search="@Model.Search"
+                           asp-route-sort="@Model.Sort"
+                           asp-route-minPrice="@Model.MinPrice"
+                           asp-route-maxPrice="@Model.MaxPrice">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M15 18l-6-6 6-6"/></svg>
+                        </a>
+                    }
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <a class="page-btn @(i == Model.CurrentPage ? "active" : "")"
+                           asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-categoryId="@Model.CurrentCategoryId"
+                           asp-route-search="@Model.Search"
+                           asp-route-sort="@Model.Sort"
+                           asp-route-minPrice="@Model.MinPrice"
+                           asp-route-maxPrice="@Model.MaxPrice">
+                            @i
+                        </a>
+                    }
+
+                    @if (Model.HasNext)
+                    {
+                        <a class="page-btn"
+                           asp-action="Index"
+                           asp-route-page="@(Model.CurrentPage + 1)"
+                           asp-route-categoryId="@Model.CurrentCategoryId"
+                           asp-route-search="@Model.Search"
+                           asp-route-sort="@Model.Sort"
+                           asp-route-minPrice="@Model.MinPrice"
+                           asp-route-maxPrice="@Model.MaxPrice">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+                        </a>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function applySort(val) {
+    const url = new URL(window.location.href);
+    if (val) url.searchParams.set('sort', val);
+    else url.searchParams.delete('sort');
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
+
+function addToCart(productId, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    // TODO: kết nối Cart controller
+    const btn = e.currentTarget;
+    btn.textContent = '✓ Đã thêm';
+    btn.style.background = 'var(--black)';
+    btn.style.color = 'var(--white)';
+    setTimeout(() => {
+        btn.textContent = 'Thêm vào giỏ';
+        btn.style.background = '';
+        btn.style.color = '';
+    }, 1500);
+}
+</script>
+}

@@ -1,0 +1,370 @@
+@{
+    ViewData["Title"] = "Về Chúng Tôi – NGỘ STORE";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+<style>
+.about-page { overflow-x: hidden; }
+
+/* ── Hero ── */
+.ab-hero {
+    position: relative;
+    height: 70vh; min-height: 480px;
+    display: flex; align-items: center;
+    padding: 0 10vw;
+    background: var(--black);
+    overflow: hidden;
+}
+.ab-hero-bg {
+    position: absolute; inset: 0;
+    background:
+        linear-gradient(105deg, rgba(10,10,10,.92) 45%, rgba(10,10,10,.4) 100%),
+        url('https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1600&q=80') center/cover no-repeat;
+}
+.ab-hero-content { position: relative; z-index: 2; max-width: 560px; }
+.ab-hero-tag {
+    font-size: .65rem; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: .8rem;
+}
+.ab-hero-tag::before { content: ''; display: block; width: 28px; height: 1px; background: var(--accent); }
+.ab-hero-title {
+    font-family: var(--serif);
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 300; line-height: 1.1; color: var(--white);
+    margin-bottom: 1.2rem;
+}
+.ab-hero-title em { font-style: italic; color: var(--accent); }
+.ab-hero-sub {
+    font-size: .9rem; color: rgba(255,255,255,.5);
+    line-height: 1.75; max-width: 420px;
+}
+
+/* ── Slogan section ── */
+.ab-slogan {
+    background: var(--cream);
+    padding: 5rem 10vw;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.ab-slogan::before {
+    content: '"';
+    position: absolute; top: -2rem; left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--serif); font-size: 20rem;
+    color: rgba(184,134,11,.06); line-height: 1;
+    pointer-events: none; user-select: none;
+}
+.ab-slogan-text {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    font-weight: 300; line-height: 1.45;
+    color: var(--black);
+    position: relative;
+}
+.ab-slogan-text em { font-style: italic; color: var(--accent); }
+.ab-slogan-author {
+    font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--stone); margin-top: 1.5rem;
+    display: flex; align-items: center; justify-content: center; gap: .8rem;
+}
+.ab-slogan-author::before,
+.ab-slogan-author::after { content: ''; display: block; width: 24px; height: 1px; background: var(--stone); }
+
+/* ── Story section ── */
+.ab-story {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 520px;
+}
+.ab-story-img {
+    position: relative; overflow: hidden;
+    background: var(--cream);
+}
+.ab-story-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 8s ease;
+}
+.ab-story-img:hover img { transform: scale(1.05); }
+
+.ab-story-text {
+    padding: 5rem 7vw;
+    display: flex; flex-direction: column; justify-content: center;
+    background: var(--white);
+}
+.ab-story-eyebrow {
+    font-size: .65rem; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: .7rem;
+}
+.ab-story-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--accent); }
+.ab-story-title {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 300; line-height: 1.2;
+    color: var(--black); margin-bottom: 1.4rem;
+}
+.ab-story-title em { font-style: italic; }
+.ab-story-body {
+    font-size: .88rem; color: var(--charcoal);
+    line-height: 1.85; margin-bottom: 1.4rem;
+}
+.ab-story-body + .ab-story-body { margin-top: -0.6rem; }
+
+/* ── Values ── */
+.ab-values {
+    padding: 5rem 10vw;
+    background: var(--black);
+}
+.ab-values-header { text-align: center; margin-bottom: 3.5rem; }
+.ab-values-eyebrow {
+    font-size: .65rem; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: .7rem;
+}
+.ab-values-title {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 300; color: var(--white);
+}
+.ab-values-title em { font-style: italic; color: var(--accent); }
+
+.ab-values-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,.08);
+}
+.ab-val-item {
+    padding: 2.5rem 2.2rem;
+    background: var(--black);
+    transition: background .25s;
+}
+.ab-val-item:hover { background: rgba(255,255,255,.04); }
+.ab-val-num {
+    font-family: var(--serif); font-size: 2.5rem; font-weight: 600;
+    color: var(--accent); line-height: 1; margin-bottom: .8rem;
+    opacity: .5;
+}
+.ab-val-title {
+    font-family: var(--serif); font-size: 1.15rem; font-weight: 400;
+    color: var(--white); margin-bottom: .6rem;
+}
+.ab-val-desc { font-size: .82rem; color: rgba(255,255,255,.35); line-height: 1.7; }
+
+/* ── Contact strip ── */
+.ab-contact {
+    padding: 5rem 10vw;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    background: var(--cream);
+}
+.ab-contact-text {}
+.ab-contact-eyebrow {
+    font-size: .65rem; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: .8rem;
+}
+.ab-contact-title {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 300; line-height: 1.2;
+    color: var(--black); margin-bottom: 1rem;
+}
+.ab-contact-title em { font-style: italic; }
+.ab-contact-desc { font-size: .88rem; color: var(--charcoal); line-height: 1.8; }
+
+.ab-contact-info { display: flex; flex-direction: column; gap: 1.2rem; }
+.ab-ci-row {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid rgba(184,134,11,.15);
+}
+.ab-ci-row:last-child { border-bottom: none; padding-bottom: 0; }
+.ab-ci-icon {
+    width: 38px; height: 38px; flex-shrink: 0;
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+}
+.ab-ci-icon svg { width: 16px; height: 16px; stroke-width: 1.6; color: var(--accent); }
+.ab-ci-label { font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; color: #999; margin-bottom: .2rem; }
+.ab-ci-value { font-size: .9rem; color: var(--black); font-weight: 500; }
+
+/* ── Social ── */
+.ab-social {
+    padding: 3rem 10vw;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1.5rem;
+    border-top: 1px solid var(--light-gray);
+}
+.ab-social-label {
+    font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--charcoal);
+}
+.ab-social-links { display: flex; gap: .8rem; }
+.ab-social-btn {
+    width: 40px; height: 40px;
+    border: 1px solid var(--light-gray);
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none; color: var(--charcoal);
+    transition: border-color .2s, color .2s, background .2s;
+}
+.ab-social-btn:hover { border-color: var(--black); color: var(--white); background: var(--black); }
+.ab-social-btn svg { width: 16px; height: 16px; stroke-width: 1.6; }
+
+/* ── Responsive ── */
+@@media (max-width: 900px) {
+    .ab-story          { grid-template-columns: 1fr; }
+    .ab-story-img      { min-height: 360px; }
+    .ab-values-grid    { grid-template-columns: 1fr; }
+    .ab-contact        { grid-template-columns: 1fr; }
+}
+@@media (max-width: 600px) {
+    .ab-hero    { padding: 0 1.5rem; }
+    .ab-slogan  { padding: 3.5rem 1.5rem; }
+    .ab-values  { padding: 4rem 1.5rem; }
+    .ab-contact { padding: 4rem 1.5rem; gap: 3rem; }
+    .ab-social  { padding: 2.5rem 1.5rem; }
+}
+</style>
+}
+
+<div class="about-page">
+
+    <section class="ab-hero">
+        <div class="ab-hero-bg"></div>
+        <div class="ab-hero-content">
+            <div class="ab-hero-tag">Câu Chuyện Thương Hiệu</div>
+            <h1 class="ab-hero-title">Về<br><em>NGỘ STORE</em></h1>
+            <p class="ab-hero-sub">
+                Một cửa hàng nhỏ, một phong cách lớn.
+                Chúng tôi không bán quần áo — chúng tôi bán cảm giác tự tin.
+            </p>
+        </div>
+    </section>
+
+    <div class="ab-slogan">
+        <div class="ab-slogan-text">
+            "Thời trang là cách bạn nói với thế giới<br>
+            bạn là ai — <em>mà không cần nói gì cả</em>."
+        </div>
+        <div class="ab-slogan-author">NGỘ STORE</div>
+    </div>
+
+    <div class="ab-story">
+        <div class="ab-story-img">
+            <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=900&q=80" alt="NGỘ STORE" loading="lazy" />
+        </div>
+        <div class="ab-story-text">
+            <div class="ab-story-eyebrow">Câu Chuyện Của Chúng Tôi</div>
+            <h2 class="ab-story-title">Bắt Đầu Từ<br><em>Tình Yêu Thời Trang</em></h2>
+            <p class="ab-story-body">
+                NGỘ STORE ra đời từ một ý tưởng đơn giản: mọi người đều xứng đáng
+                mặc đẹp mà không cần tốn quá nhiều công sức hay tiền bạc.
+            </p>
+            <p class="ab-story-body">
+                Chúng tôi tuyển chọn kỹ lưỡng từng sản phẩm — từ chất liệu vải,
+                đường may, cho đến màu sắc — để đảm bảo mỗi món đồ đều
+                xứng đáng có mặt trong tủ quần áo của bạn.
+            </p>
+            <p class="ab-story-body">
+                Ngộ nghĩnh một chút, sang trọng vừa đủ — đó là NGỘ STORE.
+            </p>
+        </div>
+    </div>
+
+    <div class="ab-values">
+        <div class="ab-values-header">
+            <div class="ab-values-eyebrow">Cam Kết Của Chúng Tôi</div>
+            <h2 class="ab-values-title">Vì Sao Chọn<br><em>NGỘ STORE</em>?</h2>
+        </div>
+        <div class="ab-values-grid">
+            <div class="ab-val-item">
+                <div class="ab-val-num">01</div>
+                <div class="ab-val-title">Chất Lượng Thật Sự</div>
+                <div class="ab-val-desc">Mỗi sản phẩm đều được kiểm duyệt kỹ trước khi đến tay bạn. Không hàng kém, không ảnh ảo.</div>
+            </div>
+            <div class="ab-val-item">
+                <div class="ab-val-num">02</div>
+                <div class="ab-val-title">Giá Cả Hợp Lý</div>
+                <div class="ab-val-desc">Thời trang đẹp không nhất thiết phải đắt. Chúng tôi cam kết giá tốt nhất cho chất lượng tốt nhất.</div>
+            </div>
+            <div class="ab-val-item">
+                <div class="ab-val-num">03</div>
+                <div class="ab-val-title">Đổi Trả Dễ Dàng</div>
+                <div class="ab-val-desc">30 ngày đổi trả miễn phí, không câu hỏi. Mua hàng an tâm, trải nghiệm thoải mái.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ab-contact">
+        <div class="ab-contact-text">
+            <div class="ab-contact-eyebrow">Liên Hệ</div>
+            <h2 class="ab-contact-title">Chúng Tôi Luôn<br><em>Ở Đây Cho Bạn</em></h2>
+            <p class="ab-contact-desc">
+                Có câu hỏi về sản phẩm? Cần tư vấn size? Hay chỉ đơn giản là muốn nói chuyện về thời trang?
+                Đừng ngần ngại liên hệ với NGỘ STORE nhé!
+            </p>
+        </div>
+        <div class="ab-contact-info">
+            <div class="ab-ci-row">
+                <div class="ab-ci-icon">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6.29 6.29l.95-1.95a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </div>
+                <div>
+                    <div class="ab-ci-label">Hotline</div>
+                    <div class="ab-ci-value">1800 9999</div>
+                </div>
+            </div>
+            <div class="ab-ci-row">
+                <div class="ab-ci-icon">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <div>
+                    <div class="ab-ci-label">Email</div>
+                    <div class="ab-ci-value">hello@ngostore.vn</div>
+                </div>
+            </div>
+            <div class="ab-ci-row">
+                <div class="ab-ci-icon">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                </div>
+                <div>
+                    <div class="ab-ci-label">Địa chỉ</div>
+                    <div class="ab-ci-value">TP. Đà Nẵng, Việt Nam</div>
+                </div>
+            </div>
+            <div class="ab-ci-row">
+                <div class="ab-ci-icon">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                    <div class="ab-ci-label">Giờ làm việc</div>
+                    <div class="ab-ci-value">8:00 – 22:00 mỗi ngày</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ab-social">
+        <div class="ab-social-label">Theo dõi NGỘ STORE</div>
+        <div class="ab-social-links">
+            <a href="#" class="ab-social-btn" title="Facebook">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="#" class="ab-social-btn" title="Instagram">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="#" class="ab-social-btn" title="TikTok">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+            </a>
+            <a href="#" class="ab-social-btn" title="Zalo">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </a>
+        </div>
+    </div>
+
+</div>

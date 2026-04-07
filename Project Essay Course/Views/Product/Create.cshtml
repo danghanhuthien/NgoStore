@@ -1,0 +1,430 @@
+@model Project_Essay_Course.ViewModels.Product_ViewModel.ProductCreateViewModel
+@{
+    ViewData["Title"] = "Thêm Sản Phẩm";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+
+@section Styles {
+<style>
+.form-page { max-width: 1100px; margin: 3rem auto; padding: 0 2rem; }
+
+.form-breadcrumb {
+    display:flex; align-items:center; gap:.6rem;
+    font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+    color:#999; margin-bottom:2.5rem;
+}
+.form-breadcrumb a { color:#999; text-decoration:none; transition:color .2s; }
+.form-breadcrumb a:hover { color:var(--black); }
+.form-breadcrumb svg { width:12px; height:12px; stroke-width:2; }
+
+.form-header { margin-bottom:2.5rem; }
+.form-eyebrow { font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:.5rem; }
+.form-title   { font-family:var(--serif); font-size:clamp(1.6rem,3vw,2.4rem); font-weight:300; }
+.form-title em { font-style:italic; }
+
+/* ── Layout ── */
+.form-layout { display:grid; grid-template-columns:1fr 360px; gap:2rem; align-items:start; }
+
+/* ── Cards ── */
+.form-card { border:1px solid var(--light-gray); padding:2rem 2.5rem; margin-bottom:1.4rem; }
+.form-card-title {
+    font-size:.7rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:2rem;
+    padding-bottom:.8rem; border-bottom:1px solid var(--light-gray);
+}
+
+/* Fields */
+.field-group { margin-bottom:1.5rem; }
+.field-label {
+    display:block; font-size:.7rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--charcoal); margin-bottom:.5rem;
+}
+.field-label .req { color:var(--danger); margin-left:.2rem; }
+.field-input, .field-select, .field-textarea {
+    width:100%; padding:.85rem 1rem;
+    border:1px solid var(--light-gray); background:var(--white);
+    font-family:var(--sans); font-size:.9rem; color:var(--black);
+    outline:none; transition:border-color var(--transition);
+}
+.field-input:focus, .field-select:focus, .field-textarea:focus { border-color:var(--black); }
+.field-textarea { resize:vertical; min-height:120px; }
+.field-error { font-size:.72rem; color:var(--danger); margin-top:.4rem; display:block; }
+.field-hint  { font-size:.72rem; color:#999; margin-top:.4rem; line-height:1.5; }
+
+.field-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.field-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+
+/* Slug auto-generate */
+.slug-wrap { position:relative; }
+.slug-prefix {
+    position:absolute; left:1rem; top:50%; transform:translateY(-50%);
+    font-size:.82rem; color:#bbb; pointer-events:none;
+}
+.slug-wrap .field-input { padding-left:5.5rem; }
+
+/* Checkbox */
+.checkbox-group { display:flex; align-items:center; gap:.7rem; cursor:pointer; }
+.checkbox-group input[type=checkbox] { accent-color:var(--black); width:16px; height:16px; }
+.checkbox-group span { font-size:.85rem; color:var(--charcoal); }
+
+/* ── Image upload ── */
+.image-upload-area {
+    border:2px dashed var(--light-gray); padding:2rem;
+    text-align:center; cursor:pointer; transition:border-color .25s;
+    position:relative;
+}
+.image-upload-area:hover, .image-upload-area.dragover { border-color:var(--black); }
+.image-upload-area input[type=file] {
+    position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+}
+.upload-icon { margin:0 auto .8rem; color:var(--stone); }
+.upload-icon svg { width:36px; height:36px; stroke-width:1.2; }
+.upload-text    { font-size:.85rem; color:var(--charcoal); margin-bottom:.3rem; }
+.upload-hint    { font-size:.72rem; color:#bbb; }
+
+.image-preview-grid {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:.6rem; margin-top:1rem;
+}
+.image-preview-item {
+    position:relative; aspect-ratio:3/4; overflow:hidden;
+    background:var(--cream);
+}
+.image-preview-item img { width:100%; height:100%; object-fit:cover; }
+.image-preview-remove {
+    position:absolute; top:.3rem; right:.3rem;
+    width:22px; height:22px; background:rgba(10,10,10,.7); color:var(--white);
+    border:none; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:12px;
+}
+.image-main-badge {
+    position:absolute; bottom:.3rem; left:.3rem;
+    font-size:.6rem; letter-spacing:.08em; text-transform:uppercase;
+    background:var(--accent); color:var(--white); padding:.2rem .5rem;
+}
+
+/* ── Variants ── */
+.variants-header {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:1rem;
+}
+.btn-add-variant {
+    display:inline-flex; align-items:center; gap:.4rem;
+    padding:.5rem 1rem; border:1px solid var(--black); background:none;
+    font-family:var(--sans); font-size:.7rem; letter-spacing:.12em;
+    text-transform:uppercase; cursor:pointer; color:var(--black);
+    transition:background .2s, color .2s;
+}
+.btn-add-variant:hover { background:var(--black); color:var(--white); }
+.btn-add-variant svg { width:13px; height:13px; stroke-width:2; }
+
+.variant-row {
+    border:1px solid var(--light-gray); padding:1rem 1.2rem;
+    margin-bottom:.6rem; display:grid;
+    grid-template-columns:1fr 1fr 1fr 80px 100px 80px auto;
+    gap:.6rem; align-items:center;
+}
+.variant-row .field-input { padding:.55rem .7rem; font-size:.82rem; }
+.btn-remove-variant {
+    width:28px; height:28px; background:none;
+    border:1px solid rgba(192,57,43,.3); color:var(--danger);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .2s; border-radius:50%;
+}
+.btn-remove-variant:hover { background:var(--danger); color:var(--white); }
+.btn-remove-variant svg { width:13px; height:13px; stroke-width:2.5; }
+
+.variant-hint {
+    font-size:.75rem; color:#999; margin-top:.5rem; line-height:1.55;
+    padding:.8rem; background:var(--cream); border-left:3px solid var(--stone);
+}
+.variant-col-label {
+    font-size:.62rem; letter-spacing:.12em; text-transform:uppercase;
+    color:#bbb; margin-bottom:.3rem;
+}
+
+/* ── Submit ── */
+.form-actions {
+    display:flex; gap:1rem; align-items:center;
+    padding:1.5rem 2.5rem; border-top:1px solid var(--light-gray);
+    background:var(--white); margin-top:0;
+}
+.btn-submit {
+    padding:.9rem 2.5rem; background:var(--black); color:var(--white);
+    border:1px solid var(--black); font-family:var(--sans); font-size:.78rem;
+    font-weight:400; letter-spacing:.16em; text-transform:uppercase;
+    cursor:pointer; transition:background var(--transition), color var(--transition);
+}
+.btn-submit:hover { background:var(--charcoal); }
+.btn-cancel-link {
+    padding:.9rem 2rem; background:none; color:var(--charcoal);
+    border:1px solid var(--light-gray); font-family:var(--sans); font-size:.78rem;
+    letter-spacing:.16em; text-transform:uppercase; text-decoration:none;
+    transition:all .25s;
+}
+.btn-cancel-link:hover { border-color:var(--black); color:var(--black); }
+
+.val-summary {
+    background:#fef2f2; border-left:3px solid var(--danger);
+    padding:.9rem 1rem; margin-bottom:1.4rem; font-size:.82rem; color:var(--danger);
+}
+.val-summary ul { padding-left:1.2rem; margin:0; }
+
+@@media (max-width:900px) { .form-layout { grid-template-columns:1fr; } }
+@@media (max-width:600px) { .variant-row { grid-template-columns:1fr 1fr; } }
+</style>
+}
+
+<div class="form-page">
+
+    <div class="form-breadcrumb">
+        <a asp-action="Manage">Sản phẩm</a>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+        <span>Thêm mới</span>
+    </div>
+
+    <div class="form-header">
+        <div class="form-eyebrow">Quản Trị Viên</div>
+        <h1 class="form-title">Thêm <em>Sản Phẩm Mới</em></h1>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+    {
+        <div class="val-summary">
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
+        @Html.AntiForgeryToken()
+
+        <div class="form-layout">
+
+            <div>
+                <div class="form-card">
+                    <div class="form-card-title">Thông Tin Cơ Bản</div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="Name">Tên sản phẩm <span class="req">*</span></label>
+                        <input asp-for="Name" class="field-input" placeholder="VD: Áo Linen Dáng Rộng"
+                               oninput="autoSlug(this.value)" />
+                        <span asp-validation-for="Name" class="field-error"></span>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="Slug">Slug (URL) <span class="req">*</span></label>
+                        <div class="slug-wrap">
+                            <span class="slug-prefix">/product/</span>
+                            <input asp-for="Slug" class="field-input" placeholder="ao-linen-dang-rong" id="slug-input" />
+                        </div>
+                        <span asp-validation-for="Slug" class="field-error"></span>
+                        <span class="field-hint">Chỉ dùng chữ thường, số và dấu -. Tự động tạo từ tên.</span>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="ShortDesc">Mô tả ngắn</label>
+                        <textarea asp-for="ShortDesc" class="field-textarea" rows="3"
+                                  placeholder="Mô tả hiển thị trên card sản phẩm (tối đa 500 ký tự)"></textarea>
+                        <span asp-validation-for="ShortDesc" class="field-error"></span>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" asp-for="Description">Mô tả chi tiết</label>
+                        <textarea asp-for="Description" class="field-textarea" rows="6"
+                                  placeholder="Mô tả đầy đủ, chất liệu, xuất xứ..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">Giá & SKU</div>
+                    <div class="field-grid-2">
+                        <div class="field-group">
+                            <label class="field-label" asp-for="BasePrice">Giá gốc (₫) <span class="req">*</span></label>
+                            <input asp-for="BasePrice" type="number" class="field-input" placeholder="0" min="0" step="1000" />
+                            <span asp-validation-for="BasePrice" class="field-error"></span>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" asp-for="SalePrice">Giá sale (₫)</label>
+                            <input asp-for="SalePrice" type="number" class="field-input" placeholder="Bỏ trống = không sale" min="0" step="1000" />
+                            <span asp-validation-for="SalePrice" class="field-error"></span>
+                        </div>
+                    </div>
+                    <div class="field-grid-2">
+                        <div class="field-group">
+                            <label class="field-label" asp-for="SKU">Mã SKU</label>
+                            <input asp-for="SKU" class="field-input" placeholder="VD: MSN-001-BLK" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" asp-for="DefaultStock">Tồn kho mặc định</label>
+                            <input asp-for="DefaultStock" type="number" class="field-input" placeholder="0" min="0" />
+                            <span class="field-hint">Dùng khi không tạo variant</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">Biến Thể Sản Phẩm</div>
+
+                    <div class="variant-hint">
+                        💡 Mỗi biến thể = 1 tổ hợp thuộc tính. Ví dụ: <strong>Size=M / Màu=Đen</strong> hoặc <strong>Vị=Socola / Kích cỡ=16cm</strong>.
+                        Bỏ trống nếu sản phẩm không có biến thể.
+                    </div>
+
+                    <div style="margin-top:1.2rem">
+                        <div class="variants-header">
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 80px 100px 80px auto;gap:.6rem;flex:1;padding-right:.5rem">
+                                <div class="variant-col-label">Thuộc tính 1</div>
+                                <div class="variant-col-label">Thuộc tính 2</div>
+                                <div class="variant-col-label">Thuộc tính 3</div>
+                                <div class="variant-col-label">Tồn kho</div>
+                                <div class="variant-col-label">Giá riêng</div>
+                                <div class="variant-col-label">SKU</div>
+                                <div></div>
+                            </div>
+                        </div>
+
+                        <div id="variants-container"></div>
+
+                        <button type="button" class="btn-add-variant" onclick="addVariantRow()">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+                            Thêm biến thể
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="form-card">
+                    <div class="form-card-title">Hình Ảnh</div>
+                    <div class="image-upload-area" id="upload-area">
+                        <input type="file" asp-for="Images" multiple accept="image/jpeg,image/png,image/webp"
+                               onchange="previewImages(this)" />
+                        <div class="upload-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <div class="upload-text">Kéo thả hoặc click để chọn ảnh</div>
+                        <div class="upload-hint">JPG, PNG, WebP · Tối đa 5MB/ảnh · Ảnh đầu = ảnh đại diện</div>
+                    </div>
+                    <div class="image-preview-grid" id="image-preview"></div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">Phân Loại</div>
+                    <div class="field-group">
+                        <label class="field-label" asp-for="CategoryId">Danh mục <span class="req">*</span></label>
+                        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="field-select">
+                            <option value="">— Chọn danh mục —</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">Cài Đặt</div>
+                    <div class="field-group">
+                        <label class="checkbox-group">
+                            <input asp-for="IsActive" type="checkbox" />
+                            <span>Kích hoạt (hiển thị ngoài shop)</span>
+                        </label>
+                    </div>
+                    <div class="field-group">
+                        <label class="checkbox-group">
+                            <input asp-for="IsFeatured" type="checkbox" />
+                            <span>Hiển thị ở trang chủ</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="padding:0;border:none;flex-direction:column;gap:.6rem">
+                    <button type="submit" class="btn-submit" style="width:100%">Tạo Sản Phẩm</button>
+                    <a asp-action="Manage" class="btn-cancel-link" style="width:100%;text-align:center">Hủy</a>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+// Auto slug from name
+function autoSlug(val) {
+    const slug = val.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g,'d').replace(/Đ/g,'d')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim().replace(/\s+/g, '-');
+    document.getElementById('slug-input').value = slug;
+}
+
+// Image preview
+function previewImages(input) {
+    const preview = document.getElementById('image-preview');
+    preview.innerHTML = '';
+    const files = Array.from(input.files);
+    files.forEach((file, i) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.className = 'image-preview-item';
+            div.innerHTML = `
+                <img src="${e.target.result}" alt="preview" />
+                ${i === 0 ? '<span class="image-main-badge">Đại diện</span>' : ''}
+            `;
+            preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Drag & drop
+const area = document.getElementById('upload-area');
+area.addEventListener('dragover',  e => { e.preventDefault(); area.classList.add('dragover'); });
+area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+area.addEventListener('drop',      e => { e.preventDefault(); area.classList.remove('dragover'); });
+
+// Variants
+let variantCount = 0;
+function addVariantRow() {
+    const i = variantCount++;
+    const row = document.createElement('div');
+    row.className = 'variant-row';
+    row.id = `variant-row-${i}`;
+    row.innerHTML = `
+        <div>
+            <input name="Variants[${i}].Attr1Name"  class="field-input" placeholder="VD: Size" />
+            <input name="Variants[${i}].Attr1Value" class="field-input" placeholder="VD: M" style="margin-top:.4rem" />
+        </div>
+        <div>
+            <input name="Variants[${i}].Attr2Name"  class="field-input" placeholder="VD: Màu" />
+            <input name="Variants[${i}].Attr2Value" class="field-input" placeholder="VD: Đen" style="margin-top:.4rem" />
+        </div>
+        <div>
+            <input name="Variants[${i}].Attr3Name"  class="field-input" placeholder="Attr 3" />
+            <input name="Variants[${i}].Attr3Value" class="field-input" placeholder="Giá trị 3" style="margin-top:.4rem" />
+        </div>
+        <input name="Variants[${i}].StockQty"      type="number" class="field-input" placeholder="0" min="0" value="0" />
+        <input name="Variants[${i}].PriceOverride" type="number" class="field-input" placeholder="Giá gốc" min="0" step="1000" />
+        <input name="Variants[${i}].SKU"           class="field-input" placeholder="SKU" />
+        <button type="button" class="btn-remove-variant" onclick="removeVariant('variant-row-${i}')">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+    `;
+    document.getElementById('variants-container').appendChild(row);
+}
+
+function removeVariant(id) {
+    document.getElementById(id)?.remove();
+}
+</script>
+}

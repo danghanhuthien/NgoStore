@@ -1,0 +1,165 @@
+@model Project_Essay_Course.Models.Order
+@{ ViewData["Title"] = "Đặt Hàng Thành Công"; }
+
+@section Styles {
+<style>
+.success-page { max-width: 680px; margin: 4rem auto; padding: 0 2rem; text-align: center; }
+.success-icon { width: 72px; height: 72px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+.success-icon svg { width: 36px; height: 36px; stroke-width: 1.8; color: #16a34a; }
+.success-eyebrow { font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:.5rem; }
+.success-title { font-family:var(--serif); font-size:clamp(1.8rem,3vw,2.6rem); font-weight:300; margin-bottom:.5rem; }
+.success-title em { font-style:italic; }
+.success-sub { font-size:.9rem; color:#888; margin-bottom:2.5rem; line-height:1.6; }
+
+/* Order code box */
+.order-code-box {
+    display:inline-flex; flex-direction:column; align-items:center;
+    padding:1.2rem 2.5rem; border:2px solid var(--black);
+    background:var(--cream); margin-bottom:2.5rem;
+}
+.order-code-label { font-size:.65rem; letter-spacing:.2em; text-transform:uppercase; color:#999; margin-bottom:.4rem; }
+.order-code-value { font-family:var(--serif); font-size:1.8rem; font-weight:600; letter-spacing:.08em; color:var(--black); }
+
+/* Info grid */
+.order-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem; text-align:left; }
+.order-info-card { border:1px solid var(--light-gray); padding:1.2rem 1.4rem; }
+.order-info-card-title { font-size:.65rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:.8rem; }
+.order-info-row { display:flex; justify-content:space-between; font-size:.82rem; padding:.3rem 0; color:var(--charcoal); }
+.order-info-row strong { color:var(--black); }
+
+/* Items */
+.order-items-wrap { border:1px solid var(--light-gray); margin-bottom:2rem; text-align:left; }
+.order-item { display:flex; align-items:center; gap:1rem; padding:1rem 1.2rem; border-bottom:1px solid rgba(235,235,235,.6); }
+.order-item:last-child { border-bottom:none; }
+.oi-name { flex:1; font-size:.88rem; }
+.oi-variant { font-size:.72rem; color:#bbb; margin-top:.15rem; }
+.oi-price { font-size:.88rem; font-weight:500; white-space:nowrap; }
+
+/* CTA */
+.success-actions { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+.btn-primary-outline { padding:.85rem 2rem; border:1px solid var(--black); background:none; color:var(--black); font-family:var(--sans); font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; text-decoration:none; transition:all .25s; }
+.btn-primary-outline:hover { background:var(--black); color:var(--white); }
+.btn-primary-solid { padding:.85rem 2rem; border:1px solid var(--black); background:var(--black); color:var(--white); font-family:var(--sans); font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; text-decoration:none; transition:all .25s; }
+.btn-primary-solid:hover { background:var(--charcoal); }
+
+/* Bank transfer notice */
+.bank-notice { background:#fffbeb; border:1px solid #fde68a; border-left:4px solid #f59e0b; padding:1.2rem 1.4rem; margin-bottom:2rem; text-align:left; }
+.bank-notice-title { font-size:.78rem; font-weight:500; color:#92400e; margin-bottom:.8rem; letter-spacing:.05em; text-transform:uppercase; }
+.bank-info-row { display:flex; justify-content:space-between; font-size:.85rem; padding:.3rem 0; }
+.bank-info-label { color:#92400e; }
+.bank-info-value { font-weight:600; color:#78350f; font-family:monospace; }
+.bank-copy-btn { font-size:.7rem; color:var(--accent); cursor:pointer; border:none; background:none; margin-left:.5rem; }
+
+@@media (max-width:600px) { .order-info-grid { grid-template-columns:1fr; } .success-actions { flex-direction:column; } }
+</style>
+}
+
+<div class="success-page">
+
+    <div class="success-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+
+    <div class="success-eyebrow">Đặt Hàng</div>
+    <h1 class="success-title">Thành <em>Công!</em></h1>
+    <p class="success-sub">
+        Cảm ơn bạn đã mua hàng tại MAISON. Chúng tôi sẽ xác nhận và xử lý đơn hàng sớm nhất!
+    </p>
+
+    <div class="order-code-box">
+        <div class="order-code-label">Mã đơn hàng</div>
+        <div class="order-code-value">@Model.OrderCode</div>
+    </div>
+
+    @* Bank transfer instructions *@
+    @if (Model.PaymentMethod == Project_Essay_Course.Models.PaymentMethod.BankTransfer)
+    {
+        <div class="bank-notice">
+            <div class="bank-notice-title">⚠ Chưa thanh toán — Vui lòng chuyển khoản</div>
+            <div class="bank-info-row">
+                <span class="bank-info-label">Ngân hàng</span>
+                <span class="bank-info-value">ACB</span>
+            </div>
+            <div class="bank-info-row">
+                <span class="bank-info-label">Số tài khoản</span>
+                <span class="bank-info-value">
+                    20499761
+                    <button class="bank-copy-btn" onclick="copyText('20499761', this)">Sao chép</button>
+                </span>
+            </div>
+            <div class="bank-info-row">
+                <span class="bank-info-label">Chủ tài khoản</span>
+                <span class="bank-info-value">DANG HA NHU THIEN</span>
+            </div>
+            <div class="bank-info-row">
+                <span class="bank-info-label">Số tiền</span>
+                <span class="bank-info-value">@Model.TotalAmount.ToString("N0")₫</span>
+            </div>
+            <div class="bank-info-row">
+                <span class="bank-info-label">Nội dung CK</span>
+                <span class="bank-info-value">
+                    @Model.OrderCode
+                    <button class="bank-copy-btn" onclick="copyText('@Model.OrderCode', this)">Sao chép</button>
+                </span>
+            </div>
+            <div style="font-size:.75rem;color:#92400e;margin-top:.8rem;line-height:1.55">
+                ⚡ Đơn hàng sẽ được xác nhận <strong>tự động</strong> sau khi chuyển khoản thành công.
+                Vui lòng ghi đúng nội dung <strong>@Model.OrderCode</strong>.
+            </div>
+        </div>
+    }
+
+    <div class="order-info-grid">
+        <div class="order-info-card">
+            <div class="order-info-card-title">Thông tin nhận hàng</div>
+            <div class="order-info-row"><span>Họ tên</span><strong>@Model.FullName</strong></div>
+            <div class="order-info-row"><span>SĐT</span><strong>@Model.Phone</strong></div>
+            <div class="order-info-row"><span>Địa chỉ</span><strong style="text-align:right;max-width:180px">@Model.Address, @Model.Ward, @Model.District, @Model.Province</strong></div>
+        </div>
+        <div class="order-info-card">
+            <div class="order-info-card-title">Thanh toán</div>
+            <div class="order-info-row"><span>Phương thức</span><strong>@Model.PaymentMethodDisplay</strong></div>
+            <div class="order-info-row"><span>Tạm tính</span><strong>@Model.SubTotal.ToString("N0")₫</strong></div>
+            <div class="order-info-row"><span>Phí ship</span><strong>@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("N0") + "₫")</strong></div>
+            <div class="order-info-row"><span>Tổng cộng</span><strong style="color:var(--black);font-size:1rem">@Model.TotalAmount.ToString("N0")₫</strong></div>
+        </div>
+    </div>
+
+    <div class="order-items-wrap">
+        @foreach (var item in Model.OrderItems)
+        {
+            <div class="order-item">
+                <div style="flex:1">
+                    <div class="oi-name">@item.ProductName <span style="color:#999;font-size:.78rem">x@item.Quantity</span></div>
+                    @if (!string.IsNullOrEmpty(item.VariantDisplay))
+                    {
+                        <div class="oi-variant">@item.VariantDisplay</div>
+                    }
+                </div>
+                <div class="oi-price">@item.SubTotal.ToString("N0")₫</div>
+            </div>
+        }
+    </div>
+
+    <div class="success-actions">
+        <a asp-controller="Order" asp-action="Detail" asp-route-id="@Model.OrderId" class="btn-primary-outline">
+            Xem chi tiết đơn hàng
+        </a>
+        <a asp-controller="Product" asp-action="Index" class="btn-primary-solid">
+            Tiếp tục mua sắm
+        </a>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✓ Đã sao chép';
+        setTimeout(() => btn.textContent = orig, 2000);
+    });
+}
+</script>
+}

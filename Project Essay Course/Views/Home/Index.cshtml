@@ -1,0 +1,515 @@
+﻿@{
+    ViewData["Title"] = "Trang Chủ";
+    /* Layout mặc định = ~/Views/Shared/_Layout.cshtml */
+}
+
+@* ══ HERO ══════════════════════════════════════════════════════════ *@
+<section class="hero">
+    <div class="hero-text">
+        <div class="hero-eyebrow">Bộ Sưu Tập Mới 2026</div>
+        <h1>Phong Cách<br><em>Định Nghĩa</em><br>Bản Thân</h1>
+        <p class="hero-desc">
+            Thời trang không chỉ là trang phục — đó là ngôn ngữ thầm lặng bạn nói với thế giới.
+            Khám phá bộ sưu tập được thiết kế cho những người không ngừng tiến về phía trước.
+        </p>
+        <div class="hero-cta">
+            <a asp-controller="Product" asp-action="Index" class="btn-primary">
+                Khám Phá Ngay
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:14px;height:14px;stroke-width:2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </a>
+            <a asp-controller="Home" asp-action="Lookbook" class="btn-ghost">
+                Xem Lookbook
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:13px;height:13px;stroke-width:2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80" alt="NGỘ Store – Bộ sưu tập 2026" />
+        <div class="hero-image-overlay"></div>
+        <div class="hero-stat-bar">
+            <div class="stat-item">
+                <span class="stat-number">500+</span>
+                <span class="stat-label">Sản phẩm</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">50K+</span>
+                <span class="stat-label">Khách hàng</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">4.9★</span>
+                <span class="stat-label">Đánh giá</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ══ MARQUEE ══════════════════════════════════════════════════════ *@
+<div class="marquee-strip">
+    <div class="marquee-track" id="marquee-track">
+        <div class="marquee-item">Miễn Phí Vận Chuyển Đơn Trên 500K</div>
+        <div class="marquee-item">Hàng Mới Về Mỗi Tuần</div>
+        <div class="marquee-item">Đổi Trả Dễ Dàng 30 Ngày</div>
+        <div class="marquee-item">Chất Liệu Cao Cấp — Bền Vững</div>
+        <div class="marquee-item">Giảm 30% Cho Thành Viên Mới</div>
+        <div class="marquee-item">Thiết Kế Độc Quyền MAISON</div>
+    </div>
+</div>
+
+@* ══ CATEGORIES ════════════════════════════════════════════════════ *@
+<section class="categories reveal">
+    <div class="section-header">
+        <div class="section-eyebrow">Danh Mục</div>
+        <h2 class="section-title">Tìm Phong Cách<br><em>Của Bạn</em></h2>
+    </div>
+
+    <div class="categories-grid">
+        <div class="category-card">
+            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80" alt="Thời trang nữ" />
+            <div class="category-overlay">
+                <div class="category-tag">Bộ Sưu Tập</div>
+                <div class="category-name">Thời Trang<br>Nữ</div>
+                <div class="category-count">238 sản phẩm</div>
+            </div>
+            <a asp-controller="Product" asp-action="Women" class="category-link-overlay"></a>
+            <div class="category-arrow">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:16px;height:16px;stroke-width:2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=600&q=80" alt="Thời trang nam" />
+            <div class="category-overlay">
+                <div class="category-tag">Nam Giới</div>
+                <div class="category-name">Thời Trang<br>Nam</div>
+                <div class="category-count">185 sản phẩm</div>
+            </div>
+            <a asp-controller="Product" asp-action="Men" class="category-link-overlay"></a>
+            <div class="category-arrow">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:16px;height:16px;stroke-width:2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80" alt="Phụ kiện" />
+            <div class="category-overlay">
+                <div class="category-tag">Phụ Kiện</div>
+                <div class="category-name">Túi &<br>Phụ Kiện</div>
+                <div class="category-count">97 sản phẩm</div>
+            </div>
+            <a asp-controller="Product" asp-action="Accessories" class="category-link-overlay"></a>
+            <div class="category-arrow">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:16px;height:16px;stroke-width:2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80" alt="Giày dép" />
+            <div class="category-overlay">
+                <div class="category-tag">Footwear</div>
+                <div class="category-name">Giày &<br>Dép</div>
+                <div class="category-count">124 sản phẩm</div>
+            </div>
+            <a asp-controller="Product" asp-action="Shoes" class="category-link-overlay"></a>
+            <div class="category-arrow">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:16px;height:16px;stroke-width:2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ══ FEATURED PRODUCTS ═════════════════════════════════════════════ *@
+<section class="featured reveal">
+    <div class="featured-header">
+        <div>
+            <div class="section-eyebrow">Nổi Bật</div>
+            <h2 class="section-title">Sản Phẩm <em>Được Yêu Thích</em></h2>
+        </div>
+        <div class="filter-tabs">
+            <button class="tab-btn active" onclick="setTab(this)">Tất Cả</button>
+            <button class="tab-btn" onclick="setTab(this)">Áo</button>
+            <button class="tab-btn" onclick="setTab(this)">Quần</button>
+            <button class="tab-btn" onclick="setTab(this)">Váy</button>
+            <button class="tab-btn" onclick="setTab(this)">Áo Khoác</button>
+        </div>
+    </div>
+
+    <div class="products-grid">
+
+        @* --- Card 1 --- *@
+        <div class="product-card">
+            <div class="product-image-wrap">
+                <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&q=80" alt="Áo linen" />
+                <span class="product-badge badge-new">Mới</span>
+                <div class="product-actions">
+                    <button class="btn-cart">Thêm Vào Giỏ</button>
+                    <button class="btn-wishlist">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">MAISON</div>
+                <div class="product-name">Áo Linen Dáng Rộng</div>
+                <div class="product-price">
+                    <span class="price-current">489.000₫</span>
+                </div>
+                <div class="product-colors">
+                    <div class="color-dot active" style="background:#f5f0e8" title="Kem"></div>
+                    <div class="color-dot" style="background:#3a3a3a" title="Đen"></div>
+                    <div class="color-dot" style="background:#c8bfb0" title="Xám tro"></div>
+                </div>
+            </div>
+        </div>
+
+        @* --- Card 2 --- *@
+        <div class="product-card">
+            <div class="product-image-wrap">
+                <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=500&q=80" alt="Váy midi" />
+                <span class="product-badge badge-hot">Hot</span>
+                <div class="product-actions">
+                    <button class="btn-cart">Thêm Vào Giỏ</button>
+                    <button class="btn-wishlist">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">MAISON</div>
+                <div class="product-name">Váy Midi Satin Cổ Điển</div>
+                <div class="product-price">
+                    <span class="price-current">729.000₫</span>
+                    <span class="price-original">950.000₫</span>
+                </div>
+                <div class="product-colors">
+                    <div class="color-dot active" style="background:#b8860b" title="Gold"></div>
+                    <div class="color-dot" style="background:#0a0a0a" title="Đen"></div>
+                    <div class="color-dot" style="background:#8b4513" title="Nâu"></div>
+                </div>
+            </div>
+        </div>
+
+        @* --- Card 3 --- *@
+        <div class="product-card">
+            <div class="product-image-wrap">
+                <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&q=80" alt="Áo khoác" />
+                <span class="product-badge badge-sale">-25%</span>
+                <div class="product-actions">
+                    <button class="btn-cart">Thêm Vào Giỏ</button>
+                    <button class="btn-wishlist">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">MAISON</div>
+                <div class="product-name">Áo Khoác Wool Oversize</div>
+                <div class="product-price">
+                    <span class="price-current">1.199.000₫</span>
+                    <span class="price-original">1.599.000₫</span>
+                </div>
+                <div class="product-colors">
+                    <div class="color-dot active" style="background:#c8bfb0" title="Xám tro"></div>
+                    <div class="color-dot" style="background:#3a3a3a" title="Đen"></div>
+                </div>
+            </div>
+        </div>
+
+        @* --- Card 4 --- *@
+        <div class="product-card">
+            <div class="product-image-wrap">
+                <img src="https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=500&q=80" alt="Quần wide leg" />
+                <span class="product-badge badge-new">Mới</span>
+                <div class="product-actions">
+                    <button class="btn-cart">Thêm Vào Giỏ</button>
+                    <button class="btn-wishlist">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">MAISON</div>
+                <div class="product-name">Quần Wide-Leg Cao Cấp</div>
+                <div class="product-price">
+                    <span class="price-current">659.000₫</span>
+                </div>
+                <div class="product-colors">
+                    <div class="color-dot active" style="background:#0a0a0a" title="Đen"></div>
+                    <div class="color-dot" style="background:#f5f0e8" title="Kem"></div>
+                    <div class="color-dot" style="background:#4a5568" title="Navy"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="text-align:center;margin-top:3rem">
+        <a asp-controller="Product" asp-action="Index" class="btn-primary">Xem Tất Cả Sản Phẩm &nbsp;→</a>
+    </div>
+</section>
+
+@* ══ PROMO BANNER ══════════════════════════════════════════════════ *@
+<div class="promo-banner reveal">
+    <div class="promo-text">
+        <div class="promo-eyebrow">Ưu Đãi Đặc Biệt</div>
+        <h2 class="promo-title">Sale Cuối Mùa<br><em>Giảm Đến 40%</em></h2>
+        <p class="promo-desc">
+            Cơ hội sở hữu những thiết kế cao cấp với mức giá ưu đãi nhất.
+            Số lượng có hạn — đừng bỏ lỡ.
+        </p>
+        <div style="display:flex;gap:1.5rem;align-items:center">
+            <a asp-controller="Product" asp-action="Sale" class="btn-light">Mua Ngay</a>
+            <span style="font-size:0.75rem;color:var(--stone);letter-spacing:0.1em">Còn 3 ngày</span>
+        </div>
+    </div>
+    <div class="promo-image">
+        <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80" alt="Sale collection" />
+        <div class="promo-discount">
+            <span class="promo-discount-num">40%</span>
+            <span class="promo-discount-off">OFF</span>
+        </div>
+    </div>
+</div>
+
+@* ══ NEW ARRIVALS ══════════════════════════════════════════════════ *@
+<section class="new-arrivals reveal">
+    <div class="section-header">
+        <div class="section-eyebrow">Hàng Mới Về</div>
+        <h2 class="section-title">Xu Hướng <em>Tuần Này</em></h2>
+    </div>
+
+    <div class="arrivals-grid">
+        <div class="arrival-card">
+            <div class="arrival-img">
+                <img src="https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=400&q=80" alt="Áo blazer" />
+            </div>
+            <div class="arrival-info">
+                <div>
+                    <div class="arrival-cat">Áo Ngoài</div>
+                    <div class="arrival-name">Áo Blazer Dáng Suông Nữ Tính</div>
+                </div>
+                <div>
+                    <div class="arrival-price">799.000₫</div>
+                    <a asp-controller="Product" asp-action="Detail" asp-route-id="1" class="arrival-btn">Xem Chi Tiết</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrival-card">
+            <div class="arrival-img">
+                <img src="https://images.unsplash.com/photo-1564584217132-2271feaeb3c5?w=400&q=80" alt="Áo sơ mi" />
+            </div>
+            <div class="arrival-info">
+                <div>
+                    <div class="arrival-cat">Áo Sơ Mi</div>
+                    <div class="arrival-name">Sơ Mi Lụa Cổ V Thanh Lịch</div>
+                </div>
+                <div>
+                    <div class="arrival-price">549.000₫</div>
+                    <a asp-controller="Product" asp-action="Detail" asp-route-id="2" class="arrival-btn">Xem Chi Tiết</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrival-card">
+            <div class="arrival-img">
+                <img src="https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400&q=80" alt="Quần jeans" />
+            </div>
+            <div class="arrival-info">
+                <div>
+                    <div class="arrival-cat">Quần Denim</div>
+                    <div class="arrival-name">Quần Jeans High-Waist Vintage</div>
+                </div>
+                <div>
+                    <div class="arrival-price">689.000₫</div>
+                    <a asp-controller="Product" asp-action="Detail" asp-route-id="3" class="arrival-btn">Xem Chi Tiết</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ══ USP ══════════════════════════════════════════════════════════ *@
+<div class="usp-strip reveal">
+    <div class="usp-item">
+        <div class="usp-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <rect x="1" y="3" width="15" height="13" rx="1" />
+                <path d="M16 8h5l2 5v3h-7V8z" />
+                <circle cx="5.5" cy="18.5" r="1.5" />
+                <circle cx="18.5" cy="18.5" r="1.5" />
+            </svg>
+        </div>
+        <div class="usp-title">Miễn Phí Vận Chuyển</div>
+        <div class="usp-desc">Cho đơn hàng từ 500.000₫ toàn quốc</div>
+    </div>
+    <div class="usp-item">
+        <div class="usp-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
+            </svg>
+        </div>
+        <div class="usp-title">Đổi Trả 30 Ngày</div>
+        <div class="usp-desc">Không phù hợp? Đổi trả miễn phí dễ dàng</div>
+    </div>
+    <div class="usp-item">
+        <div class="usp-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+        </div>
+        <div class="usp-title">Thanh Toán An Toàn</div>
+        <div class="usp-desc">Mã hóa SSL 256-bit bảo vệ thông tin của bạn</div>
+    </div>
+    <div class="usp-item">
+        <div class="usp-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+        </div>
+        <div class="usp-title">Hỗ Trợ 24/7</div>
+        <div class="usp-desc">Đội ngũ tư vấn luôn sẵn sàng phục vụ bạn</div>
+    </div>
+</div>
+
+@* ══ TESTIMONIALS ══════════════════════════════════════════════════ *@
+<section class="testimonials reveal">
+    <div class="section-header">
+        <div class="section-eyebrow">Khách Hàng Nói Gì</div>
+        <h2 class="section-title">Đánh Giá <em>Thực Tế</em></h2>
+    </div>
+
+    <div class="testimonials-grid">
+        <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p class="testimonial-text">"Chất lượng vải vượt mức mong đợi. Áo linen mặc cả ngày mà vẫn phẳng đẹp, không nhăn. Sẽ quay lại mua thêm nhiều lần."</p>
+            <div class="testimonial-author">
+                <div class="author-avatar">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Linh" />
+                </div>
+                <div>
+                    <div class="author-name">Nguyễn Hà Linh</div>
+                    <div class="author-city">Hà Nội</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p class="testimonial-text">"Giao hàng cực nhanh, đóng gói đẹp mắt như quà tặng. Chiếc váy midi satin đẹp hơn ảnh rất nhiều. Rất đáng tiền!"</p>
+            <div class="testimonial-author">
+                <div class="author-avatar">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80" alt="Mai" />
+                </div>
+                <div>
+                    <div class="author-name">Trần Bảo Mai</div>
+                    <div class="author-city">TP. Hồ Chí Minh</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonial-card">
+            <div class="stars">★★★★☆</div>
+            <p class="testimonial-text">"Áo khoác wool dày dặn, may rất tỉ mỉ từng đường chỉ. Nhân viên tư vấn nhiệt tình, hỗ trợ chọn size rất chuyên nghiệp."</p>
+            <div class="testimonial-author">
+                <div class="author-avatar">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Minh" />
+                </div>
+                <div>
+                    <div class="author-name">Lê Quang Minh</div>
+                    <div class="author-city">Đà Nẵng</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ══ INSTAGRAM ════════════════════════════════════════════════════ *@
+<section class="instagram reveal">
+    <div class="section-header">
+        <div class="section-eyebrow">@@maison.fashion</div>
+        <h2 class="section-title">Theo Dõi Chúng Tôi<br><em>Trên Instagram</em></h2>
+    </div>
+
+    <div class="insta-grid">
+        @{
+            var instaPhotos = new[] {
+                                "1469334031218-e382a71b716b",
+                                "1487412720507-e7ab37603c6f",
+                                "1509631179647-0177331693ae",
+                                "1515886657613-9f3515b0c78f",
+                                "1558618666-fcd25c85cd64"
+                };
+        }
+        @foreach (var photo in instaPhotos)
+        {
+            <div class="insta-item">
+                <img src="https://images.unsplash.com/photo-@(photo)?w=300&q=80" alt="MAISON Instagram" />
+                <div class="insta-overlay">
+                    <div class="insta-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="2" y="2" width="20" height="20" rx="5" />
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@* ══ NEWSLETTER ════════════════════════════════════════════════════ *@
+<section class="newsletter reveal">
+    <div class="newsletter-eyebrow">Nhận Ưu Đãi</div>
+    <h2>Đăng Ký Nhận <em>Tin Mới</em></h2>
+    <p>Cập nhật xu hướng mới nhất và nhận ngay mã giảm giá 15% cho đơn đầu tiên.</p>
+    <form asp-controller="Home" asp-action="Subscribe" method="post" class="newsletter-form">
+        @Html.AntiForgeryToken()
+        <input type="email" name="email" class="newsletter-input"
+               placeholder="Nhập địa chỉ email của bạn..." required />
+        <button type="submit" class="newsletter-submit">Đăng Ký</button>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        // Tab filter (chỉ dùng ở trang chủ)
+        function setTab(btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // TODO: gọi AJAX lọc sản phẩm theo tab
+        }
+
+        // Color dot
+        document.querySelectorAll('.color-dot').forEach(dot => {
+            dot.addEventListener('click', function () {
+                this.closest('.product-colors')
+                    .querySelectorAll('.color-dot')
+                    .forEach(d => d.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+}

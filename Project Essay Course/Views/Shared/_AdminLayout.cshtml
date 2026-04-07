@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – NGỘ Admin</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/css/maison.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/adminlayout.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+@* ── Mobile overlay ── *@
+<div class="adm-overlay" id="adm-overlay" onclick="toggleSidebar()"></div>
+
+@* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ *@
+<aside class="adm-sidebar" id="adm-sidebar">
+
+    {{-- Logo --}}
+    <div class="adm-logo">
+        <a asp-controller="Home" asp-action="Index" class="adm-logo-brand">
+            MAISON<span>.</span>
+        </a>
+        <div class="adm-logo-badge">Admin Panel</div>
+    </div>
+
+    <nav class="adm-nav">
+
+        <div class="adm-nav-section">
+            <div class="adm-nav-section-label">Tổng Quan</div>
+
+            <a asp-controller="Admin" asp-action="Index"
+               class="adm-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Dashboard
+            </a>
+
+            <a asp-controller="Home" asp-action="Index" target="_blank" class="adm-nav-item">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                    <polyline points="15 3 21 3 21 9"/>
+                    <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                Xem Website
+            </a>
+        </div>
+
+        <div class="adm-nav-section">
+            <div class="adm-nav-section-label">Danh Mục & Sản Phẩm</div>
+
+            @{
+                var ctrl = ViewContext.RouteData.Values["controller"]?.ToString();
+                var act  = ViewContext.RouteData.Values["action"]?.ToString();
+                bool isProduct  = ctrl == "Product";
+                bool isCategory = ctrl == "Category";
+            }
+
+            <div class="adm-nav-item @(isProduct ? "active open" : "")"
+                 onclick="toggleSubnav('subnav-product', this)">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                </svg>
+                Sản Phẩm
+                <svg class="adm-nav-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </div>
+            <div class="adm-subnav @(isProduct ? "open" : "")" id="subnav-product">
+                <a asp-controller="Product" asp-action="Manage"
+                   class="adm-subnav-item @(isProduct && act == "Manage" ? "active" : "")">
+                    Danh sách
+                </a>
+                <a asp-controller="Product" asp-action="Create"
+                   class="adm-subnav-item @(isProduct && act is "Create" ? "active" : "")">
+                    Thêm mới
+                </a>
+            </div>
+
+            <div class="adm-nav-item @(isCategory ? "active open" : "")"
+                 onclick="toggleSubnav('subnav-category', this)">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+                Danh Mục
+                <svg class="adm-nav-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </div>
+            <div class="adm-subnav @(isCategory ? "open" : "")" id="subnav-category">
+                <a asp-controller="Category" asp-action="Index"
+                   class="adm-subnav-item @(isCategory && act == "Index" ? "active" : "")">
+                    Danh sách
+                </a>
+                <a asp-controller="Category" asp-action="Create"
+                   class="adm-subnav-item @(isCategory && act is "Create" ? "active" : "")">
+                    Thêm mới
+                </a>
+            </div>
+        </div>
+
+        <div class="adm-nav-section">
+            <div class="adm-nav-section-label">Kinh Doanh</div>
+
+            <a class="adm-nav-item @(ctrl == "Order" ? "active" : "")"
+               asp-controller="OrderAdmin" asp-action="Index">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+                Đơn Hàng
+                @* Badge số đơn pending — ViewBag.PendingOrders từ base controller *@
+                @if (ViewBag.PendingOrders != null && (int)ViewBag.PendingOrders > 0)
+                {
+                    <span style="margin-left:auto;background:#c0392b;color:#fff;font-size:.58rem;padding:.15rem .45rem;border-radius:8px;font-weight:500">
+                        @ViewBag.PendingOrders
+                    </span>
+                }
+            </a>
+        </div>
+
+        <div class="adm-nav-section">
+            <div class="adm-nav-section-label">Hệ Thống</div>
+
+            <a class="adm-nav-item @(ctrl == "Account" && (act == "Index" || act == "Details") ? "active" : "")"
+               asp-controller="Account" asp-action="Index">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                Người Dùng
+            </a>
+        </div>
+
+    </nav>
+
+    <div class="adm-sidebar-footer">
+        <div class="adm-user-info">
+            <div class="adm-user-avatar">
+                @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "A")
+            </div>
+            <div>
+                <div class="adm-user-name">@User.Identity?.Name</div>
+                <div class="adm-user-role">Administrator</div>
+            </div>
+        </div>
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="adm-logout-btn">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Đăng Xuất
+            </button>
+        </form>
+    </div>
+</aside>
+
+@* ══════════════════════════════════════════
+   MAIN
+══════════════════════════════════════════ *@
+<div class="adm-main">
+
+    <header class="adm-topbar">
+        <div class="adm-topbar-left">
+            <button class="adm-hamburger" onclick="toggleSidebar()">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <line x1="3" y1="6"  x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+
+            @if (ViewData["AdminBreadcrumb"] is List<(string Label, string? Url)> crumbs && crumbs.Any())
+            {
+                <nav class="adm-topbar-breadcrumb">
+                    <a asp-controller="Admin" asp-action="Index">Admin</a>
+                    @foreach (var (label, url) in crumbs)
+                    {
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+                        @if (url != null)
+                        {
+                            <a href="@url">@label</a>
+                        }
+                        else
+                        {
+                            <span>@label</span>
+                        }
+                    }
+                </nav>
+            }
+            else
+            {
+                <nav class="adm-topbar-breadcrumb">
+                    <a asp-controller="Admin" asp-action="Index">Admin</a>
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+                    <span>@ViewData["Title"]</span>
+                </nav>
+            }
+        </div>
+
+        <div class="adm-topbar-right">
+            <a asp-controller="Home" asp-action="Index" target="_blank"
+               class="adm-topbar-btn">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                    <polyline points="15 3 21 3 21 9"/>
+                    <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                Shop
+            </a>
+        </div>
+    </header>
+
+    @{
+        var success = TempData["Success"]?.ToString();
+        var error   = TempData["Error"]?.ToString();
+        var warning = TempData["Warning"]?.ToString();
+    }
+    @if (success != null || error != null || warning != null)
+    {
+        <div class="adm-flash-wrap">
+            @if (success != null)
+            {
+                <div class="adm-flash adm-flash-success">
+                    <span>✓ @success</span>
+                    <button class="adm-flash-close" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            }
+            @if (error != null)
+            {
+                <div class="adm-flash adm-flash-error">
+                    <span>✕ @error</span>
+                    <button class="adm-flash-close" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            }
+            @if (warning != null)
+            {
+                <div class="adm-flash adm-flash-warning">
+                    <span>⚠ @warning</span>
+                    <button class="adm-flash-close" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            }
+        </div>
+    }
+
+    <main class="adm-content">
+        @RenderBody()
+    </main>
+
+</div>
+
+@await RenderSectionAsync("Scripts", required: false)
+
+<script>
+// Sidebar toggle (mobile)
+function toggleSidebar() {
+    const sidebar = document.getElementById('adm-sidebar');
+    const overlay = document.getElementById('adm-overlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+    document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+}
+
+// Collapsible subnav
+function toggleSubnav(id, btn) {
+    const subnav = document.getElementById(id);
+    if (!subnav) return;
+    const isOpen = subnav.classList.contains('open');
+    // Đóng tất cả
+    document.querySelectorAll('.adm-subnav').forEach(n => n.classList.remove('open'));
+    document.querySelectorAll('.adm-nav-item[onclick]').forEach(b => b.classList.remove('open'));
+    // Mở cái được click nếu chưa mở
+    if (!isOpen) {
+        subnav.classList.add('open');
+        btn.classList.add('open');
+    }
+}
+
+// Auto-close flash sau 5s
+document.querySelectorAll('.adm-flash').forEach(el => {
+    setTimeout(() => el.style.transition = 'opacity .5s', 4500);
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 500); }, 5000);
+});
+</script>
+
+</body>
+</html>

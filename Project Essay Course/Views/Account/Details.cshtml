@@ -1,0 +1,227 @@
+@model Project_Essay_Course.ViewModels.Account_ViewModel.UserDetailsViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi Tiết Người Dùng";
+}
+
+@section Styles {
+<style>
+.details-page {
+    max-width: 900px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+.edit-breadcrumb {
+    display: flex; align-items: center; gap: .6rem;
+    font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+    color: #999; margin-bottom: 2.5rem;
+}
+.edit-breadcrumb a { color: #999; text-decoration: none; transition: color .2s; }
+.edit-breadcrumb a:hover { color: var(--black); }
+.edit-breadcrumb svg { width: 12px; height: 12px; stroke-width: 2; }
+
+/* ── Profile header card ── */
+.detail-hero {
+    border: 1px solid var(--light-gray); padding: 2rem 2.5rem;
+    display: flex; gap: 2rem; align-items: center; margin-bottom: 1.4rem;
+    flex-wrap: wrap;
+}
+.detail-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--black); color: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 2rem; font-weight: 600;
+    flex-shrink: 0;
+}
+.detail-hero-name { font-family: var(--serif); font-size: 1.5rem; font-weight: 300; }
+.detail-hero-name em { font-style: italic; }
+.detail-hero-email { font-size: .82rem; color: #888; margin-top: .3rem; }
+.detail-hero-id { font-size: .7rem; color: #bbb; letter-spacing: .08em; margin-top: .3rem; font-family: monospace; }
+
+.role-tag {
+    display: inline-block; padding: .25rem .75rem;
+    font-size: .65rem; letter-spacing: .12em; text-transform: uppercase;
+    background: var(--black); color: var(--white); margin: .2rem .2rem 0 0;
+}
+.role-tag-admin { background: var(--accent); }
+
+/* ── Info grid ── */
+.detail-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1.4rem; margin-bottom: 1.4rem;
+}
+
+.detail-card { border: 1px solid var(--light-gray); padding: 1.8rem 2rem; }
+.detail-card-title {
+    font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.5rem;
+    padding-bottom: .8rem; border-bottom: 1px solid var(--light-gray);
+}
+
+.info-row { display: flex; flex-direction: column; padding: .85rem 0; border-bottom: 1px solid rgba(235,235,235,.7); }
+.info-row:last-child { border-bottom: none; }
+.info-label { font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; color: #bbb; margin-bottom: .3rem; }
+.info-value { font-size: .88rem; color: var(--black); word-break: break-all; }
+.info-value.empty { color: #ccc; font-style: italic; }
+
+.status-badge { display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .7rem; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; }
+.status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.badge-active::before  { background: #16a34a; }
+.badge-active   { color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; }
+.badge-inactive::before{ background: #999; }
+.badge-inactive { color: #777; background: #f5f5f5; border: 1px solid #e0e0e0; }
+
+/* ── Actions ── */
+.detail-actions {
+    border: 1px solid var(--light-gray); padding: 1.8rem 2rem;
+}
+.detail-actions-title {
+    font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.5rem;
+    padding-bottom: .8rem; border-bottom: 1px solid var(--light-gray);
+}
+.action-list { display: flex; gap: .8rem; flex-wrap: wrap; }
+
+.btn-action {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .7rem 1.4rem;
+    border: 1px solid var(--light-gray); background: none;
+    font-family: var(--sans); font-size: .72rem;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--charcoal); text-decoration: none; cursor: pointer;
+    transition: all .25s;
+}
+.btn-action:hover { border-color: var(--black); color: var(--black); }
+.btn-action svg { width: 13px; height: 13px; stroke-width: 2; }
+
+.btn-action-back { background: var(--black); color: var(--white); border-color: var(--black); }
+.btn-action-back:hover { background: var(--charcoal); color: var(--white); border-color: var(--charcoal); }
+
+@@media (max-width: 640px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .detail-hero { flex-direction: column; gap: 1rem; }
+}
+</style>
+}
+
+<div class="details-page">
+
+    <div class="edit-breadcrumb">
+        <a asp-action="Index">Người dùng</a>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+        <span>Chi tiết</span>
+    </div>
+
+    <!-- Hero card -->
+    <div class="detail-hero">
+        <div class="detail-avatar">@Model.UserName?.Substring(0, 1).ToUpper()</div>
+        <div style="flex:1">
+            <div class="detail-hero-name"><em>@Model.UserName</em></div>
+            <div class="detail-hero-email">@Model.Email</div>
+            <div class="detail-hero-id">ID: @Model.Id</div>
+            <div style="margin-top:.7rem">
+                @if (Model.Roles != null && Model.Roles.Any())
+                {
+                    @foreach (var role in Model.Roles)
+                    {
+                        <span class="role-tag @(role == "Admin" ? "role-tag-admin" : "")">@role</span>
+                    }
+                }
+                else
+                {
+                    <span class="role-tag">Thành viên</span>
+                }
+            </div>
+        </div>
+        @if (Model.EmailConfirmed)
+        {
+            <span class="status-badge badge-active">Đã xác thực</span>
+        }
+        else
+        {
+            <span class="status-badge badge-inactive">Chưa xác thực</span>
+        }
+    </div>
+
+    <!-- Info grid -->
+    <div class="detail-grid">
+
+        <div class="detail-card">
+            <div class="detail-card-title">Thông Tin Tài Khoản</div>
+
+            <div class="info-row">
+                <div class="info-label">Email</div>
+                <div class="info-value">@Model.Email</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Tên tài khoản</div>
+                <div class="info-value">@Model.UserName</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Số điện thoại</div>
+                @if (string.IsNullOrEmpty(Model.PhoneNumber))
+                {
+                    <div class="info-value empty">Chưa cập nhật</div>
+                }
+                else
+                {
+                    <div class="info-value">@Model.PhoneNumber</div>
+                }
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-card-title">Trạng Thái & Phân Quyền</div>
+
+            <div class="info-row">
+                <div class="info-label">Xác thực email</div>
+                <div class="info-value">
+                    @if (Model.EmailConfirmed)
+                    {
+                        <span class="status-badge badge-active">Đã xác thực</span>
+                    }
+                    else
+                    {
+                        <span class="status-badge badge-inactive">Chưa xác thực</span>
+                    }
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">Vai trò</div>
+                <div class="info-value">
+                    @if (Model.Roles != null && Model.Roles.Any())
+                    {
+                        @string.Join(", ", Model.Roles)
+                    }
+                    else
+                    {
+                        <span class="empty">Không có vai trò đặc biệt</span>
+                    }
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">Mã định danh</div>
+                <div class="info-value" style="font-family:monospace;font-size:.78rem;color:#888">@Model.Id</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Admin actions -->
+    <div class="detail-actions">
+        <div class="detail-actions-title">Thao Tác</div>
+        <div class="action-list">
+            <a asp-action="ManageRoles" asp-route-id="@Model.Id" class="btn-action" style="background:var(--black);color:var(--white);border-color:var(--black)">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Phân Quyền
+            </a>
+            <a asp-action="Index" class="btn-action btn-action-back">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+</div>

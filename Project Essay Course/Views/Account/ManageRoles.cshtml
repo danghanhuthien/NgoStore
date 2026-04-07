@@ -1,0 +1,256 @@
+@model Project_Essay_Course.ViewModels.Account_ViewModel.ManageRolesViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Phân Quyền: " + Model.Email;
+    var isSelf = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.UserId;
+}
+
+@section Styles {
+<style>
+.roles-page { max-width: 760px; margin: 3rem auto; padding: 0 2rem; }
+
+.form-breadcrumb {
+    display:flex; align-items:center; gap:.6rem;
+    font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+    color:#999; margin-bottom:2.5rem;
+}
+.form-breadcrumb a { color:#999; text-decoration:none; transition:color .2s; }
+.form-breadcrumb a:hover { color:var(--black); }
+.form-breadcrumb svg { width:12px; height:12px; stroke-width:2; }
+
+/* User hero */
+.user-hero {
+    display:flex; align-items:center; gap:1.2rem;
+    padding:1.5rem 2rem; border:1px solid var(--light-gray);
+    background:var(--cream); margin-bottom:2rem;
+}
+.user-avatar {
+    width:52px; height:52px; border-radius:50%;
+    background:var(--black); color:var(--white);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--serif); font-size:1.4rem; flex-shrink:0;
+}
+.user-hero-name  { font-family:var(--serif); font-size:1.1rem; font-weight:300; }
+.user-hero-email { font-size:.8rem; color:#888; margin-top:.15rem; }
+.user-hero-id    { font-size:.65rem; color:#bbb; margin-top:.1rem; font-family:monospace; }
+
+/* Cards */
+.role-card { border:1px solid var(--light-gray); padding:1.8rem 2rem; margin-bottom:1.2rem; }
+.role-card-title {
+    font-size:.7rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:1.4rem;
+    padding-bottom:.7rem; border-bottom:1px solid var(--light-gray);
+}
+
+/* Current roles list */
+.role-list { display:flex; flex-direction:column; gap:.6rem; }
+.role-item {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:.75rem 1rem;
+    background:var(--white); border:1px solid var(--light-gray);
+    transition:background .15s;
+}
+.role-item:hover { background:#fafaf8; }
+.role-item-left { display:flex; align-items:center; gap:.8rem; }
+.role-icon {
+    width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.role-icon-admin { background:#fef3c7; color:#d97706; }
+.role-icon-user  { background:#f0fdf4; color:#16a34a; }
+.role-icon-other { background:#f0f9ff; color:#0369a1; }
+.role-icon svg { width:15px; height:15px; stroke-width:1.8; }
+.role-name  { font-size:.88rem; font-weight:500; color:var(--black); }
+.role-badge {
+    font-size:.6rem; letter-spacing:.1em; text-transform:uppercase;
+    padding:.2rem .55rem; margin-left:.5rem;
+}
+.badge-admin { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+.badge-self  { background:#fee2e2; color:#991b1b; border:1px solid #fecaca; font-size:.58rem; }
+
+/* Remove role button */
+.btn-remove-role {
+    display:inline-flex; align-items:center; gap:.35rem;
+    padding:.38rem .85rem;
+    border:1px solid rgba(192,57,43,.3); background:none;
+    font-family:var(--sans); font-size:.68rem; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--danger); cursor:pointer;
+    transition:all .2s;
+}
+.btn-remove-role:hover { background:var(--danger); color:var(--white); border-color:var(--danger); }
+.btn-remove-role:disabled { opacity:.35; cursor:not-allowed; }
+.btn-remove-role svg { width:12px; height:12px; stroke-width:2.5; }
+
+/* No roles */
+.no-roles {
+    padding:1.5rem; text-align:center;
+    color:#bbb; font-size:.85rem; background:#fafaf8;
+    border:1px dashed var(--light-gray);
+}
+
+/* Assign role */
+.assign-grid { display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom:1.2rem; }
+.assign-role-btn {
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.55rem 1.1rem;
+    border:1px solid var(--light-gray); background:none;
+    font-family:var(--sans); font-size:.78rem;
+    color:var(--charcoal); cursor:pointer;
+    transition:all .2s;
+}
+.assign-role-btn:hover { border-color:var(--black); color:var(--black); background:var(--cream); }
+.assign-role-btn svg { width:13px; height:13px; stroke-width:2; color:var(--accent); }
+
+/* Create new role */
+.create-role-form { display:flex; gap:.6rem; margin-top:1rem; }
+.create-role-input {
+    flex:1; padding:.7rem 1rem;
+    border:1px solid var(--light-gray); background:var(--white);
+    font-family:var(--sans); font-size:.88rem; color:var(--black);
+    outline:none; transition:border-color var(--transition);
+}
+.create-role-input:focus { border-color:var(--black); }
+.create-role-input::placeholder { color:#ccc; }
+.btn-create-role {
+    padding:.7rem 1.4rem;
+    background:var(--black); color:var(--white);
+    border:1px solid var(--black); font-family:var(--sans);
+    font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+    cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.btn-create-role:hover { background:var(--charcoal); }
+
+/* Warning banner */
+.warn-banner {
+    display:flex; gap:.8rem; align-items:flex-start;
+    padding:.9rem 1rem; background:#fffbeb;
+    border:1px solid #fde68a; border-left:3px solid #f59e0b;
+    margin-bottom:1.2rem; font-size:.8rem; color:#92400e;
+}
+.warn-banner svg { width:16px; height:16px; stroke-width:1.8; flex-shrink:0; margin-top:.05rem; }
+</style>
+}
+
+<div class="roles-page">
+
+    <div class="form-breadcrumb">
+        <a asp-action="Index">Người dùng</a>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+        <a asp-action="Details" asp-route-id="@Model.UserId">@Model.Email</a>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
+        <span>Phân Quyền</span>
+    </div>
+
+    <div class="user-hero">
+        <div class="user-avatar">@Model.Email.Substring(0,1).ToUpper()</div>
+        <div>
+            <div class="user-hero-name"><em>@Model.UserName</em></div>
+            <div class="user-hero-email">@Model.Email</div>
+            <div class="user-hero-id">ID: @Model.UserId</div>
+        </div>
+    </div>
+
+    @if (isSelf)
+    {
+        <div class="warn-banner">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>Đây là tài khoản của bạn. Bạn không thể tự xóa vai trò Admin của chính mình.</span>
+        </div>
+    }
+
+    <div class="role-card">
+        <div class="role-card-title">Vai Trò Hiện Tại (@Model.UserRoles.Count)</div>
+
+        @if (!Model.UserRoles.Any())
+        {
+            <div class="no-roles">Người dùng này chưa có vai trò nào.</div>
+        }
+        else
+        {
+            <div class="role-list">
+                @foreach (var role in Model.UserRoles.OrderBy(r => r))
+                {
+                    var isAdmin       = role == "Admin";
+                    var cannotRemove  = isSelf && isAdmin;
+                    var iconClass     = isAdmin ? "role-icon-admin" : (role == "User" ? "role-icon-user" : "role-icon-other");
+
+                    <div class="role-item">
+                        <div class="role-item-left">
+                            <div class="role-icon @iconClass">
+                                @if (isAdmin)
+                                {
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                }
+                                else if (role == "User")
+                                {
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                }
+                                else
+                                {
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+                                }
+                            </div>
+                            <div>
+                                <span class="role-name">@role</span>
+                                @if (isAdmin) { <span class="role-badge badge-admin">Quản trị</span> }
+                                @if (cannotRemove) { <span class="role-badge badge-self">Tài khoản bạn</span> }
+                            </div>
+                        </div>
+
+                        <form asp-action="RemoveRole" method="post" style="display:inline"
+                              onsubmit="return confirm('Xóa vai trò \'@role\' khỏi người dùng này?')">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="userId"   value="@Model.UserId" />
+                            <input type="hidden" name="roleName" value="@role" />
+                            <button type="submit" class="btn-remove-role" @(cannotRemove ? "disabled" : "")>
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                                Xóa
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    @if (Model.AvailableRoles.Any())
+    {
+        <div class="role-card">
+            <div class="role-card-title">Gán Vai Trò</div>
+            <div class="assign-grid">
+                @foreach (var role in Model.AvailableRoles.OrderBy(r => r))
+                {
+                    <form asp-action="AssignRole" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="userId"   value="@Model.UserId" />
+                        <input type="hidden" name="roleName" value="@role" />
+                        <button type="submit" class="assign-role-btn">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+                            @role
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="role-card">
+        <div class="role-card-title">Tạo Vai Trò Mới</div>
+        <p style="font-size:.8rem;color:#999;margin-bottom:1rem;line-height:1.6">
+            Tạo vai trò mới trong hệ thống rồi gán cho người dùng này. Tên vai trò phân biệt chữ hoa/thường.
+        </p>
+        <form asp-action="CreateRole" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUserId" value="@Model.UserId" />
+            <div class="create-role-form">
+                <input type="text" name="roleName" class="create-role-input"
+                       placeholder="VD: Manager, Editor, Shipper..." maxlength="50" required />
+                <button type="submit" class="btn-create-role">Tạo & Gán</button>
+            </div>
+        </form>
+    </div>
+
+</div>
