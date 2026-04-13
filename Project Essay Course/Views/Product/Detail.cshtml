@@ -118,7 +118,6 @@
     </div>
 
     <div class="detail-layout">
-
         <div class="gallery">
             <div class="gallery-main" id="main-img-wrap">
                 @if (p.Images.Any())
@@ -351,15 +350,60 @@ function selectAttr1(btn) {
     selectedAttr1 = btn.dataset.attr1;
     const lbl = document.getElementById('selected-attr1-label');
     if (lbl) lbl.textContent = selectedAttr1;
+    // Cập nhật availability của attr2 theo attr1 vừa chọn
+    updateAttr2Availability();
     updateVariantState();
 }
 function selectAttr2(btn) {
+    if (btn.disabled) return;
     document.querySelectorAll('#variant-group-2 .variant-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedAttr2 = btn.dataset.attr2;
     const lbl = document.getElementById('selected-attr2-label');
     if (lbl) lbl.textContent = selectedAttr2;
     updateVariantState();
+}
+
+// Disable attr2 buttons không có hàng với attr1 đang chọn
+function updateAttr2Availability() {
+    const group2 = document.querySelectorAll('#variant-group-2 .variant-btn');
+    if (!group2.length) return;
+
+    let currentAttr2Valid = false;
+
+    group2.forEach(btn => {
+        const attr2Val = btn.dataset.attr2;
+        const variant  = VARIANTS.find(v =>
+            (!selectedAttr1 || v.attr1Val === selectedAttr1) &&
+            v.attr2Val === attr2Val
+        );
+        const outOfStock = !variant || variant.stock === 0;
+
+        btn.disabled = outOfStock;
+        btn.classList.toggle('disabled', outOfStock);
+
+        // Nếu đang active mà bị hết hàng → bỏ active
+        if (outOfStock && btn.classList.contains('active')) {
+            btn.classList.remove('active');
+            selectedAttr2 = null;
+            const lbl = document.getElementById('selected-attr2-label');
+            if (lbl) lbl.textContent = '—';
+        }
+        if (!outOfStock && btn.classList.contains('active')) {
+            currentAttr2Valid = true;
+        }
+    });
+
+    // Nếu selectedAttr2 không còn hợp lệ → auto-select attr2 đầu tiên còn hàng
+    if (!currentAttr2Valid) {
+        const firstAvail = document.querySelector('#variant-group-2 .variant-btn:not([disabled])');
+        if (firstAvail) {
+            firstAvail.classList.add('active');
+            selectedAttr2 = firstAvail.dataset.attr2;
+            const lbl = document.getElementById('selected-attr2-label');
+            if (lbl) lbl.textContent = selectedAttr2;
+        }
+    }
 }
 
 function updateVariantState() {
@@ -438,10 +482,15 @@ function toggleAccordion(btn) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    // Auto-select attr1 đầu tiên còn hàng
     const a1 = document.querySelector('#variant-group-1 .variant-btn:not([disabled])');
-    if (a1) a1.click();
-    const a2 = document.querySelector('#variant-group-2 .variant-btn:not([disabled])');
-    if (a2) a2.click();
+    if (a1) a1.click(); // selectAttr1 sẽ tự gọi updateAttr2Availability
+    else {
+        // Không có attr1 → chỉ init attr2
+        updateAttr2Availability();
+        const a2 = document.querySelector('#variant-group-2 .variant-btn:not([disabled])');
+        if (a2) a2.click();
+    }
 });
 </script>
 }

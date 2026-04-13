@@ -63,7 +63,7 @@
     <div class="success-eyebrow">Đặt Hàng</div>
     <h1 class="success-title">Thành <em>Công!</em></h1>
     <p class="success-sub">
-        Cảm ơn bạn đã mua hàng tại MAISON. Chúng tôi sẽ xác nhận và xử lý đơn hàng sớm nhất!
+        Cảm ơn bạn đã mua hàng tại NGỘ STORE. Chúng tôi sẽ xác nhận và xử lý đơn hàng sớm nhất!
     </p>
 
     <div class="order-code-box">
@@ -130,9 +130,10 @@
         {
             <div class="order-item">
                 <div style="flex:1">
-                    <div class="oi-name">@item.ProductName <span style="color:#999;font-size:.78rem">x@item.Quantity</span></div>
+                    <div class="oi-name">@item.ProductName <span style="color:#999;font-size:.78rem"></span></div>
                     @if (!string.IsNullOrEmpty(item.VariantDisplay))
                     {
+                        <div class="oi-variant">SL: @item.Quantity</div>
                         <div class="oi-variant">@item.VariantDisplay</div>
                     }
                 </div>

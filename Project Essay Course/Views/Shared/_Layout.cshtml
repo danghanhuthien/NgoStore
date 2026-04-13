@@ -50,12 +50,12 @@
 
         <div class="header-actions">
             <!-- Tìm kiếm -->
-            <button class="icon-btn" title="Tìm kiếm" onclick="document.getElementById('search-overlay').classList.toggle('open')">
+            @* <button class="icon-btn" title="Tìm kiếm" onclick="document.getElementById('search-overlay').classList.toggle('open')">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <circle cx="11" cy="11" r="8" />
                     <path d="m21 21-4.35-4.35" />
                 </svg>
-            </button>
+            </button> *@
 
             <!-- Tài khoản -->
             @if (User.Identity?.IsAuthenticated == true)
@@ -72,7 +72,6 @@
                         <li><hr class="udm-divider"></li>
                         <li><a asp-controller="Account" asp-action="Profile">👤 &nbsp;Hồ sơ cá nhân</a></li>
                         <li><a asp-controller="Order"   asp-action="Index">📦 &nbsp;Đơn hàng của tôi</a></li>
-                        <li><a asp-controller="Favourite" asp-action="Index">❤️ &nbsp;Yêu thích</a></li>
                         @if (User.IsInRole("Admin"))
                         {
                             <li><hr class="udm-divider"></li>
@@ -99,11 +98,11 @@
             }
 
             <!-- Yêu thích -->
-            <a asp-controller="Favourite" asp-action="Index" class="icon-btn" title="Yêu thích">
+            @* <a asp-controller="Favourite" asp-action="Index" class="icon-btn" title="Yêu thích">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                 </svg>
-            </a>
+            </a> *@
 
             <!-- Giỏ hàng — badge lấy trực tiếp từ DB qua inject -->
             <a asp-controller="Cart" asp-action="Index" class="icon-btn" title="Giỏ hàng" style="position:relative">
@@ -136,14 +135,13 @@
         <button class="mobile-nav-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">✕</button>
         <a asp-controller="Home"    asp-action="Index">Trang Chủ</a>
         <a asp-controller="Product" asp-action="Index">Sản Phẩm</a>
-        <a asp-controller="Home"    asp-action="Lookbook">Lookbook</a>
-        <a asp-controller="Home"    asp-action="About">Về Chúng Tôi</a>
+        <a asp-controller="LookBook" asp-action="Lookbook">Lookbook</a>
+        <a asp-controller="LookBook" asp-action="About">Về Chúng Tôi</a>
         <div class="mobile-nav-divider"></div>
         @if (User.Identity?.IsAuthenticated == true)
         {
             <a asp-controller="Account"  asp-action="Profile">Hồ sơ cá nhân</a>
             <a asp-controller="Cart"     asp-action="Index">Giỏ hàng (@cartCount)</a>
-            <a asp-controller="Favourite" asp-action="Index">Yêu thích</a>
         }
         else
         {
@@ -197,7 +195,7 @@
         <div class="footer-grid">
 
             <div class="footer-brand-col">
-                <a asp-controller="Home" asp-action="Index" class="logo footer-logo">MAISON<span>.</span></a>
+                <a asp-controller="Home" asp-action="Index" class="logo footer-logo">NGỘ STORE<span>.</span></a>
                 <p class="footer-desc">
                     Thời trang không chỉ là quần áo — đó là hành trình khám phá bản thân.
                     Chúng tôi tạo ra những thiết kế giúp bạn tự tin mỗi ngày.
@@ -245,7 +243,7 @@
             <div class="footer-col">
                 <h4>Thông Tin</h4>
                 <ul class="footer-links">
-                    <li><a asp-controller="Home" asp-action="About">Về MAISON</a></li>
+                    <li><a asp-controller="Home" asp-action="About">Về NGỘ STORE</a></li>
                     <li><a asp-controller="Home" asp-action="Sustainability">Cam Kết Bền Vững</a></li>
                     <li><a asp-controller="Home" asp-action="Careers">Tuyển Dụng</a></li>
                     <li><a asp-controller="Home" asp-action="Terms">Điều Khoản Dịch Vụ</a></li>

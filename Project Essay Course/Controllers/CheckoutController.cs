@@ -286,7 +286,7 @@ namespace Project_Essay_Course.Controllers
         {
             // MAISON + 6 số random → VD: MAISON482931
             var rng = new Random();
-            return "MAISON" + rng.Next(100000, 999999).ToString();
+            return "NGOSTORE" + rng.Next(100000, 999999).ToString();
         }
     }
 }

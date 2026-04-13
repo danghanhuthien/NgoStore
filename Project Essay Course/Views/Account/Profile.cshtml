@@ -168,7 +168,7 @@
             </div>
             <div>
                 <div class="profile-page-name"><em>@Model.UserName</em></div>
-                <div class="profile-page-role">Thành viên MAISON</div>
+                <div class="profile-page-role">Thành viên NGỘ STORE</div>
             </div>
         </div>
         <a asp-action="Edit" class="btn-edit-profile">
@@ -269,7 +269,7 @@
                     </div>
                 </a>
 
-                <a asp-controller="Favourite" asp-action="Index" class="quick-action">
+                @* <a asp-controller="Favourite" asp-action="Index" class="quick-action">
                     <div class="qa-icon">
                         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -282,7 +282,7 @@
                     <div class="qa-arrow">
                         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
-                </a>
+                </a> *@
 
                 <a asp-controller="Cart" asp-action="Index" class="quick-action">
                     <div class="qa-icon">
@@ -318,14 +318,14 @@
             </div>
 
             <!-- Danger zone -->
-            <div class="danger-zone">
+            @* <div class="danger-zone">
                 <div class="danger-zone-title">⚠ Vùng nguy hiểm</div>
                 <div class="danger-zone-desc">
                     Xóa tài khoản là hành động không thể hoàn tác.
                     Toàn bộ dữ liệu sẽ bị xóa vĩnh viễn.
                 </div>
                 <a asp-action="Delete" class="btn-danger">Xóa Tài Khoản</a>
-            </div>
+            </div> *@
         </div>
 
     </div>
