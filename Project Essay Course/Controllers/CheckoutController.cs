@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project_Essay_Course.Data;
 using Project_Essay_Course.Models;
+using Project_Essay_Course.Services;
 using Project_Essay_Course.ViewModels.Order_ViewModel;
 
 namespace Project_Essay_Course.Controllers
@@ -13,11 +14,13 @@ namespace Project_Essay_Course.Controllers
     {
         private readonly ApplicationDbContext _db;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IEmailService _emailService;
 
-        public CheckoutController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
+        public CheckoutController(ApplicationDbContext db, UserManager<IdentityUser> userManager, IEmailService emailService)
         {
             _db = db;
             _userManager = userManager;
+            _emailService = emailService;
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -213,6 +216,17 @@ namespace Project_Essay_Course.Controllers
 
             await _db.SaveChangesAsync();
 
+            // ── Gửi email xác nhận (fire-and-forget, không block luồng) ──
+            _ = Task.Run(async () =>
+            {
+                // Reload order với OrderItems để có đủ data cho email
+                var orderForEmail = await _db.Orders
+                    .Include(o => o.OrderItems)
+                    .FirstOrDefaultAsync(o => o.OrderId == order.OrderId);
+                if (orderForEmail != null)
+                    await _emailService.SendOrderConfirmationAsync(orderForEmail);
+            });
+
             // ── COD → Pending, Bank → chờ thanh toán ──
             if (vm.PaymentMethod == PaymentMethod.COD)
             {
@@ -238,6 +252,8 @@ namespace Project_Essay_Course.Controllers
                 .FirstOrDefaultAsync(o => o.OrderId == id && o.UserId == userId);
 
             if (order == null) return NotFound();
+            await _emailService.SendOrderConfirmationAsync(order);
+
             return View(order);
         }
 

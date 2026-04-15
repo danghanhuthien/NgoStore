@@ -29,7 +29,7 @@
     </div>
 
     <div class="hero-image">
-        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80" alt="NGỘ Store – Bộ sưu tập 2026" />
+        <img src="/image/image7.jpg" alt="NGỘ Store – Bộ sưu tập 2026" />
         <div class="hero-image-overlay"></div>
         <div class="hero-stat-bar">
             <div class="stat-item">
@@ -66,68 +66,25 @@
         <div class="section-eyebrow">Danh Mục</div>
         <h2 class="section-title">Tìm Phong Cách<br><em>Của Bạn</em></h2>
     </div>
-
     <div class="categories-grid">
+    @foreach (var cat in (ViewBag.Categories as List<Project_Essay_Course.Models.Category> ?? new()))
+    {
         <div class="category-card">
-            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80" alt="Thời trang nữ" />
+            <img src="@(cat.ImagePath ?? "/image/placeholder.jpg")" alt="@cat.Name" />
             <div class="category-overlay">
                 <div class="category-tag">Bộ Sưu Tập</div>
-                <div class="category-name">Thời Trang<br>Nữ</div>
-                <div class="category-count">238 sản phẩm</div>
+                <div class="category-name">@cat.Name</div>
+                <div class="category-count">@cat.Products.Count sản phẩm</div>
             </div>
-            <a asp-controller="Product" asp-action="Women" class="category-link-overlay"></a>
+            <a asp-controller="Shop" asp-action="Index" asp-route-slug="@cat.Slug" class="category-link-overlay"></a>
             <div class="category-arrow">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:16px;height:16px;stroke-width:2">
                     <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
             </div>
         </div>
-
-        <div class="category-card">
-            <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=600&q=80" alt="Thời trang nam" />
-            <div class="category-overlay">
-                <div class="category-tag">Nam Giới</div>
-                <div class="category-name">Thời Trang<br>Nam</div>
-                <div class="category-count">185 sản phẩm</div>
-            </div>
-            <a asp-controller="Product" asp-action="Men" class="category-link-overlay"></a>
-            <div class="category-arrow">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:16px;height:16px;stroke-width:2">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-            </div>
-        </div>
-
-        <div class="category-card">
-            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80" alt="Phụ kiện" />
-            <div class="category-overlay">
-                <div class="category-tag">Phụ Kiện</div>
-                <div class="category-name">Túi &<br>Phụ Kiện</div>
-                <div class="category-count">97 sản phẩm</div>
-            </div>
-            <a asp-controller="Product" asp-action="Accessories" class="category-link-overlay"></a>
-            <div class="category-arrow">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:16px;height:16px;stroke-width:2">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-            </div>
-        </div>
-
-        <div class="category-card">
-            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80" alt="Giày dép" />
-            <div class="category-overlay">
-                <div class="category-tag">Footwear</div>
-                <div class="category-name">Giày &<br>Dép</div>
-                <div class="category-count">124 sản phẩm</div>
-            </div>
-            <a asp-controller="Product" asp-action="Shoes" class="category-link-overlay"></a>
-            <div class="category-arrow">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:16px;height:16px;stroke-width:2">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-            </div>
-        </div>
-    </div>
+    }
+</div>
 </section>
 
 @* ══ FEATURED PRODUCTS ═════════════════════════════════════════════ *@
@@ -147,121 +104,47 @@
     </div>
 
     <div class="products-grid">
-
-        @* --- Card 1 --- *@
-        <div class="product-card">
-            <div class="product-image-wrap">
-                <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&q=80" alt="Áo linen" />
-                <span class="product-badge badge-new">Mới</span>
-                <div class="product-actions">
-                    <button class="btn-cart">Thêm Vào Giỏ</button>
-                    <button class="btn-wishlist">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                        </svg>
-                    </button>
+        @foreach (var p in (ViewBag.Products as List<Project_Essay_Course.Models.Product> ?? new()))
+        {
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <img src="@(p.Images?.FirstOrDefault()?.ImagePath ?? "/image/placeholder.jpg")" alt="@p.Name" />
+                    @if (p.IsFeatured)
+                    {
+                        <span class="product-badge badge-hot">Hot</span>
+                    }
+                    else if (p.SalePrice.HasValue)
+                    {
+                        <span class="product-badge badge-sale">-@((int)((1 - p.SalePrice.Value / p.BasePrice) * 100))%</span>
+                    }
+                    else
+                    {
+                        <span class="product-badge badge-new">Mới</span>
+                    }
+                    <div class="product-actions">
+                        <button class="btn-cart">Thêm Vào Giỏ</button>
+                        <button class="btn-wishlist">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-brand">NGỘ STORE</div>
+                    <div class="product-name">@p.Name</div>
+                    <div class="product-price">
+                        <span class="price-current">@((p.SalePrice ?? p.BasePrice).ToString("N0"))₫</span>
+                        @if (p.SalePrice.HasValue)
+                        {
+                            <span class="price-original">@p.BasePrice.ToString("N0")₫</span>
+                        }
+                    </div>
                 </div>
             </div>
-            <div class="product-info">
-                <div class="product-brand">MAISON</div>
-                <div class="product-name">Áo Linen Dáng Rộng</div>
-                <div class="product-price">
-                    <span class="price-current">489.000₫</span>
-                </div>
-                <div class="product-colors">
-                    <div class="color-dot active" style="background:#f5f0e8" title="Kem"></div>
-                    <div class="color-dot" style="background:#3a3a3a" title="Đen"></div>
-                    <div class="color-dot" style="background:#c8bfb0" title="Xám tro"></div>
-                </div>
-            </div>
-        </div>
-
-        @* --- Card 2 --- *@
-        <div class="product-card">
-            <div class="product-image-wrap">
-                <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=500&q=80" alt="Váy midi" />
-                <span class="product-badge badge-hot">Hot</span>
-                <div class="product-actions">
-                    <button class="btn-cart">Thêm Vào Giỏ</button>
-                    <button class="btn-wishlist">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="product-info">
-                <div class="product-brand">MAISON</div>
-                <div class="product-name">Váy Midi Satin Cổ Điển</div>
-                <div class="product-price">
-                    <span class="price-current">729.000₫</span>
-                    <span class="price-original">950.000₫</span>
-                </div>
-                <div class="product-colors">
-                    <div class="color-dot active" style="background:#b8860b" title="Gold"></div>
-                    <div class="color-dot" style="background:#0a0a0a" title="Đen"></div>
-                    <div class="color-dot" style="background:#8b4513" title="Nâu"></div>
-                </div>
-            </div>
-        </div>
-
-        @* --- Card 3 --- *@
-        <div class="product-card">
-            <div class="product-image-wrap">
-                <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&q=80" alt="Áo khoác" />
-                <span class="product-badge badge-sale">-25%</span>
-                <div class="product-actions">
-                    <button class="btn-cart">Thêm Vào Giỏ</button>
-                    <button class="btn-wishlist">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="product-info">
-                <div class="product-brand">MAISON</div>
-                <div class="product-name">Áo Khoác Wool Oversize</div>
-                <div class="product-price">
-                    <span class="price-current">1.199.000₫</span>
-                    <span class="price-original">1.599.000₫</span>
-                </div>
-                <div class="product-colors">
-                    <div class="color-dot active" style="background:#c8bfb0" title="Xám tro"></div>
-                    <div class="color-dot" style="background:#3a3a3a" title="Đen"></div>
-                </div>
-            </div>
-        </div>
-
-        @* --- Card 4 --- *@
-        <div class="product-card">
-            <div class="product-image-wrap">
-                <img src="https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=500&q=80" alt="Quần wide leg" />
-                <span class="product-badge badge-new">Mới</span>
-                <div class="product-actions">
-                    <button class="btn-cart">Thêm Vào Giỏ</button>
-                    <button class="btn-wishlist">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="product-info">
-                <div class="product-brand">MAISON</div>
-                <div class="product-name">Quần Wide-Leg Cao Cấp</div>
-                <div class="product-price">
-                    <span class="price-current">659.000₫</span>
-                </div>
-                <div class="product-colors">
-                    <div class="color-dot active" style="background:#0a0a0a" title="Đen"></div>
-                    <div class="color-dot" style="background:#f5f0e8" title="Kem"></div>
-                    <div class="color-dot" style="background:#4a5568" title="Navy"></div>
-                </div>
-            </div>
-        </div>
-
+        }
     </div>
+
 
     <div style="text-align:center;margin-top:3rem">
         <a asp-controller="Product" asp-action="Index" class="btn-primary">Xem Tất Cả Sản Phẩm &nbsp;→</a>
@@ -283,7 +166,7 @@
         </div>
     </div>
     <div class="promo-image">
-        <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80" alt="Sale collection" />
+        <img src="/image/image8.jpg" alt="Sale collection" />
         <div class="promo-discount">
             <span class="promo-discount-num">40%</span>
             <span class="promo-discount-off">OFF</span>
@@ -299,53 +182,24 @@
     </div>
 
     <div class="arrivals-grid">
-        <div class="arrival-card">
-            <div class="arrival-img">
-                <img src="https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=400&q=80" alt="Áo blazer" />
-            </div>
-            <div class="arrival-info">
-                <div>
-                    <div class="arrival-cat">Áo Ngoài</div>
-                    <div class="arrival-name">Áo Blazer Dáng Suông Nữ Tính</div>
+        @foreach (var p in (ViewBag.Products as List<Project_Essay_Course.Models.Product> ?? new()))
+        {
+            <div class="arrival-card">
+                <div class="arrival-img">
+                    <img src="@(p.Images?.FirstOrDefault()?.ImagePath ?? "/image/placeholder.jpg")" alt="@p.Name" />
                 </div>
-                <div>
-                    <div class="arrival-price">799.000₫</div>
-                    <a asp-controller="Product" asp-action="Detail" asp-route-id="1" class="arrival-btn">Xem Chi Tiết</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="arrival-card">
-            <div class="arrival-img">
-                <img src="https://images.unsplash.com/photo-1564584217132-2271feaeb3c5?w=400&q=80" alt="Áo sơ mi" />
-            </div>
-            <div class="arrival-info">
-                <div>
-                    <div class="arrival-cat">Áo Sơ Mi</div>
-                    <div class="arrival-name">Sơ Mi Lụa Cổ V Thanh Lịch</div>
-                </div>
-                <div>
-                    <div class="arrival-price">549.000₫</div>
-                    <a asp-controller="Product" asp-action="Detail" asp-route-id="2" class="arrival-btn">Xem Chi Tiết</a>
+                <div class="arrival-info">
+                    <div>
+                        <div class="arrival-cat">@(p.Category?.Name ?? "Sản Phẩm")</div>
+                        <div class="arrival-name">@p.Name</div>
+                    </div>
+                    <div>
+                        <div class="arrival-price">@((p.SalePrice ?? p.BasePrice).ToString("N0"))₫</div>
+                        <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ProductId" class="arrival-btn">Xem Chi Tiết</a>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="arrival-card">
-            <div class="arrival-img">
-                <img src="https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400&q=80" alt="Quần jeans" />
-            </div>
-            <div class="arrival-info">
-                <div>
-                    <div class="arrival-cat">Quần Denim</div>
-                    <div class="arrival-name">Quần Jeans High-Waist Vintage</div>
-                </div>
-                <div>
-                    <div class="arrival-price">689.000₫</div>
-                    <a asp-controller="Product" asp-action="Detail" asp-route-id="3" class="arrival-btn">Xem Chi Tiết</a>
-                </div>
-            </div>
-        </div>
+        }
     </div>
 </section>
 
@@ -455,17 +309,17 @@
     <div class="insta-grid">
         @{
             var instaPhotos = new[] {
-                                "1469334031218-e382a71b716b",
-                                "1487412720507-e7ab37603c6f",
-                                "1509631179647-0177331693ae",
-                                "1515886657613-9f3515b0c78f",
-                                "1558618666-fcd25c85cd64"
+                                "image8.jpg",
+                                "image9.jpg",
+                                "image10.jpg",
+                                "image11.jpg",
+                                "image12.jpg"
                 };
         }
         @foreach (var photo in instaPhotos)
         {
             <div class="insta-item">
-                <img src="https://images.unsplash.com/photo-@(photo)?w=300&q=80" alt="NGỘ STORE Instagram" />
+                <img src="/image/@photo" alt="NGỘ STORE Instagram" />
                 <div class="insta-overlay">
                     <div class="insta-icon">
                         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">

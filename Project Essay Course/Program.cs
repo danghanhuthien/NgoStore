@@ -1,13 +1,17 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Project_Essay_Course.Data;
+using Project_Essay_Course.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // ✅ Thêm Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>

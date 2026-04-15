@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project_Essay_Course.Data;
 using Project_Essay_Course.Models;
+using Project_Essay_Course.Services;
 using Project_Essay_Course.ViewModels.Order_ViewModel;
 
 namespace Project_Essay_Course.Controllers
@@ -11,10 +12,12 @@ namespace Project_Essay_Course.Controllers
     public class OrderAdminController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly IEmailService _emailService;
 
-        public OrderAdminController(ApplicationDbContext db)
+        public OrderAdminController(ApplicationDbContext db, IEmailService emailService)
         {
             _db = db;
+            _emailService = emailService;
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -32,18 +35,18 @@ namespace Project_Essay_Course.Controllers
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim().ToLower();
-                query  = query.Where(o =>
+                query = query.Where(o =>
                     o.OrderCode.ToLower().Contains(search) ||
-                    o.FullName.ToLower().Contains(search)  ||
+                    o.FullName.ToLower().Contains(search) ||
                     o.Phone.Contains(search));
             }
 
             if (status.HasValue)
                 query = query.Where(o => o.Status == status.Value);
 
-            var total      = await query.CountAsync();
+            var total = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(total / (double)pageSize);
-            var orders     = await query
+            var orders = await query
                 .OrderByDescending(o => o.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -51,16 +54,16 @@ namespace Project_Essay_Course.Controllers
 
             var vm = new OrderAdminListViewModel
             {
-                Orders        = orders,
-                CurrentPage   = page,
-                TotalPages    = totalPages,
-                TotalItems    = total,
-                Search        = search,
-                StatusFilter  = status,
-                PendingCount  = await _db.Orders.CountAsync(o => o.Status == OrderStatus.Pending),
-                ConfirmedCount= await _db.Orders.CountAsync(o => o.Status == OrderStatus.Confirmed),
+                Orders = orders,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = total,
+                Search = search,
+                StatusFilter = status,
+                PendingCount = await _db.Orders.CountAsync(o => o.Status == OrderStatus.Pending),
+                ConfirmedCount = await _db.Orders.CountAsync(o => o.Status == OrderStatus.Confirmed),
                 ShippingCount = await _db.Orders.CountAsync(o => o.Status == OrderStatus.Shipping),
-                DeliveredCount= await _db.Orders.CountAsync(o => o.Status == OrderStatus.Delivered)
+                DeliveredCount = await _db.Orders.CountAsync(o => o.Status == OrderStatus.Delivered)
             };
 
             return View(vm);
@@ -81,7 +84,7 @@ namespace Project_Essay_Course.Controllers
         }
 
         // ══════════════════════════════════════════════════════════════
-        //  POST /OrderAdmin/UpdateStatus — Cập nhật trạng thái
+        //  POST /OrderAdmin/UpdateStatus — Cập nhật trạng thái đơn
         // ══════════════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -113,20 +116,35 @@ namespace Project_Essay_Course.Controllers
                 }
             }
 
-            // Nếu Delivered → đánh dấu Paid (với COD)
+            // Nếu Delivered + COD → tự động đánh dấu Paid
             if (newStatus == OrderStatus.Delivered && order.PaymentMethod == PaymentMethod.COD)
             {
                 order.PaymentStatus = PaymentStatus.Paid;
-                order.PaidAt        = DateTime.UtcNow;
+                order.PaidAt = DateTime.UtcNow;
             }
 
-            order.Status    = newStatus;
+            order.Status = newStatus;
             order.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
+
+            // Gửi email thông báo cho khách (fire-and-forget)
+            var statusesToNotify = new[] {
+                OrderStatus.Confirmed, OrderStatus.Processing,
+                OrderStatus.Shipping,  OrderStatus.Delivered, OrderStatus.Cancelled
+            };
+            if (statusesToNotify.Contains(newStatus))
+            {
+                _ = Task.Run(() => _emailService.SendOrderStatusUpdateAsync(order));
+            }
+
             TempData["Success"] = $"Đã cập nhật đơn {order.OrderCode} → {order.StatusDisplay}";
             return RedirectToAction(nameof(Detail), new { id = orderId });
         }
+
+        // ══════════════════════════════════════════════════════════════
+        //  POST /OrderAdmin/UpdatePaymentStatus — Cập nhật thanh toán
+        // ══════════════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePaymentStatus(int orderId, bool isPaid)
@@ -148,7 +166,7 @@ namespace Project_Essay_Course.Controllers
         }
 
         // ══════════════════════════════════════════════════════════════
-        //  GET /OrderAdmin/Invoice/{id} — Xuất hóa đơn (admin)
+        //  GET /OrderAdmin/Invoice/{id} — Xuất hóa đơn
         // ══════════════════════════════════════════════════════════════
         [HttpGet]
         public async Task<IActionResult> Invoice(int id)
@@ -160,6 +178,5 @@ namespace Project_Essay_Course.Controllers
             if (order == null) return NotFound();
             return View("Invoice", order);
         }
-
     }
 }
